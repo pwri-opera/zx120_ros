@@ -4,18 +4,17 @@
 	<!-- Import all Gazebo-customization elements, including Gazebo colors -->
 	<xacro:include filename="$(find zx120_description)/urdf/zx120.gazebo" />
 	<!-- Import Rviz colors -->
-	<xacro:include filename="$(find zx120_description)/urdf/materials.xacro" />
+	<!-- <xacro:include filename="$(find zx120_description)/urdf/materials.xacro" /> -->
 
-	<!-- Used for fixing robot to Gazebo 'base_link' -->
-	<link name="world"/>
-
-	<joint name="fixed" type="fixed">
-		<parent link="world"/>
-		<child link="link1"/>
+	<!-- Base Link -->
+	<link name="base_link"/>
+	<joint name="base_joint" type="fixed">
+		<parent link="base_link"/>
+		<child link="track_link"/>
 	</joint>
 
 	<!-- Base Link -->
-	<link name="link1">
+	<link name="track_link">
 		<visual>
 			<geometry>
 				<mesh filename="package://zx120_description/meshes/zx120-crawler.dae"/>
@@ -38,14 +37,14 @@
 	</link>
 
 	<!-- body axis -->
-	<joint name="joint1" type="continuous">
+	<joint name="body_joint" type="continuous">
 		<origin xyz="0 0 1"/>
 		<axis xyz="0 0 2"/>
-		<parent link="link1"/>
-		<child link="link2"/>
+		<parent link="track_link"/>
+		<child link="body_link"/>
 	</joint>
 
-	<link name="link2">
+	<link name="body_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -70,140 +69,140 @@
 	</link>
 
 	<!-- boom axis -->
-	<joint name="joint2" type="revolute">
+	<joint name="boom_joint" type="revolute">
 		<origin xyz="0.15433 -0.16443 0.31327"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link2"/>
-		<child link="link3"/>
+		<parent link="body_link"/>
+		<child link="boom_link"/>
 		<limit lower="${radians(-70)}" upper="${radians(30)}" effort="500" velocity="6.159937255"/>
 	</joint>
 
-	<joint name="joint5" type="continuous">
+	<joint name="boom_cylinder_head_joint" type="continuous">
 		<origin xyz="0.556105 -0.164428 0.032962"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link2"/>
-		<child link="link6"/>
-		<mimic joint="joint2" multiplier="${60/70}"/>
+		<parent link="body_link"/>
+		<child link="boom_cylinder_head_link"/>
+		<mimic joint="boom_joint" multiplier="${60/70}"/>
 	</joint>
 	<gazebo>
-		<plugin name="joint5_mimic_joint_plugin"
+		<plugin name="boom_cylinder_head_joint_mimic_joint_plugin"
 				filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
-			<joint>joint2</joint>
-			<mimicJoint>joint5</mimicJoint>
+			<joint>boom_joint</joint>
+			<mimicJoint>boom_cylinder_head_joint</mimicJoint>
 			<multiplier>${60/70}</multiplier>
 			<offset>0</offset>
 			<robotNamespace>/zx120</robotNamespace>
 		</plugin>
 	</gazebo>
 
-	<joint name="joint6" type="prismatic">
+	<joint name="boom_cylinder_rod_joint" type="prismatic">
 		<origin xyz="0 0 0"/>
 		<axis xyz="0.802033 0 1.847495"/>
-		<parent link="link6"/>
-		<child link="link7"/>
+		<parent link="boom_cylinder_head_link"/>
+		<child link="boom_cylinder_rod_link"/>
 		<limit lower="-2" upper="2" effort="500" velocity="6.159937255"/>
-		<mimic joint="joint2" multiplier="${0.39/-1.22}"/>
+		<mimic joint="boom_joint" multiplier="${0.39/-1.22}"/>
 	</joint>
 	<gazebo>
-		<plugin name="joint6_mimic_joint_plugin"
+		<plugin name="boom_cylinder_rod_joint_mimic_joint_plugin"
 				filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
-			<joint>joint2</joint>
-			<mimicJoint>joint6</mimicJoint>
+			<joint>boom_joint</joint>
+			<mimicJoint>boom_cylinder_rod_joint</mimicJoint>
 			<multiplier>${0.39/-1.22}</multiplier>
 			<offset>0</offset>
 			<robotNamespace>/zx120</robotNamespace>
 		</plugin>
 	</gazebo>
 
-	<joint name="joint7" type="fixed">
+	<joint name="arm_cylinder_head_joint" type="fixed">
 		<origin xyz="2.053030 0 1.991444"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link3"/>
-		<child link="link8"/>
+		<parent link="boom_link"/>
+		<child link="arm_cylinder_head_link"/>
 	</joint>
 
-	<joint name="joint8" type="prismatic">
+	<joint name="arm_cylinder_rod_joint" type="prismatic">
 		<origin xyz="0 0 0"/>
 		<axis xyz="2.36471 0 0"/>
-		<parent link="link8"/>
-		<child link="link9"/>
+		<parent link="arm_cylinder_head_link"/>
+		<child link="arm_cylinder_rod_link"/>
 		<limit lower="-2" upper="2" effort="500" velocity="6.159937255"/>
-		<mimic joint="joint3" multiplier="${0.4/radians(50)}"/>
+		<mimic joint="arm_joint" multiplier="${0.4/radians(50)}"/>
 	</joint>
 	<gazebo>
-		<plugin name="joint8_mimic_joint_plugin"
+		<plugin name="arm_cylinder_rod_joint_mimic_joint_plugin"
 				filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
-			<joint>joint3</joint>
-			<mimicJoint>joint8</mimicJoint>
+			<joint>arm_joint</joint>
+			<mimicJoint>arm_cylinder_rod_joint</mimicJoint>
 			<multiplier>${0.4/radians(50)}</multiplier>
 			<offset>0</offset>
 			<robotNamespace>/zx120</robotNamespace>
 		</plugin>
 	</gazebo>
 
-	<joint name="joint9" type="fixed">
+	<joint name="bucket_cylinder_head_joint" type="fixed">
 		<origin xyz="0.605825 0 -0.364793"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link4"/>
-		<child link="link10"/>
+		<parent link="arm_link"/>
+		<child link="bucket_cylinder_head_link"/>
 	</joint>
 
-	<joint name="joint10" type="prismatic">
+	<joint name="bucket_cylinder_rod_joint" type="prismatic">
 		<origin xyz="0 0 0"/>
 		<axis xyz="-0.021529 0 -2.207579"/>
-		<parent link="link10"/>
-		<child link="link11"/>
+		<parent link="bucket_cylinder_head_link"/>
+		<child link="bucket_cylinder_rod_link"/>
 		<limit lower="-2" upper="2" effort="500" velocity="6.159937255"/>
-		<mimic joint="joint4" multiplier="${-0.9/-2.79}"/>
+		<mimic joint="bucket_joint" multiplier="${-0.9/-2.79}"/>
 	</joint>
 	<gazebo>
-		<plugin name="joint10_mimic_joint_plugin"
+		<plugin name="bucket_cylinder_rod_joint_mimic_joint_plugin"
 				filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
-			<joint>joint4</joint>
-			<mimicJoint>joint10</mimicJoint>
+			<joint>bucket_joint</joint>
+			<mimicJoint>bucket_cylinder_rod_joint</mimicJoint>
 			<multiplier>${-0.9/-2.79}</multiplier>
 			<offset>0</offset>
 			<robotNamespace>/zx120</robotNamespace>
 		</plugin>
 	</gazebo>
 
-	<joint name="joint11" type="continuous">
+	<joint name="bucket_b_joint" type="continuous">
 		<origin xyz="0.330489 0 -2.150643"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link4"/>
-		<child link="link12"/>
-		<mimic joint="joint4" multiplier="${120/160}"/>
+		<parent link="arm_link"/>
+		<child link="bucket_b_link"/>
+		<mimic joint="bucket_joint" multiplier="${120/160}"/>
 	</joint>
 	<gazebo>
-		<plugin name="joint11_mimic_joint_plugin"
+		<plugin name="bucket_b_joint_mimic_joint_plugin"
 				filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
-			<joint>joint4</joint>
-			<mimicJoint>joint11</mimicJoint>
+			<joint>bucket_joint</joint>
+			<mimicJoint>bucket_b_joint</mimicJoint>
 			<multiplier>${120/160}</multiplier>
 			<offset>0</offset>
 			<robotNamespace>/zx120</robotNamespace>
 		</plugin>
 	</gazebo>
 
-	<joint name="joint12" type="continuous">
+	<joint name="bucket_a_joint" type="continuous">
 		<origin xyz="-0.182145 0 -0.315076"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link5"/>
-		<child link="link13"/>
-		<mimic joint="joint4" multiplier="${-92/160}"/>
+		<parent link="bucket_link"/>
+		<child link="bucket_a_link"/>
+		<mimic joint="bucket_joint" multiplier="${-92/160}"/>
 	</joint>
 	<gazebo>
-		<plugin name="joint12_mimic_joint_plugin"
+		<plugin name="bucket_a_joint_mimic_joint_plugin"
 				filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
-			<joint>joint4</joint>
-			<mimicJoint>joint12</mimicJoint>
+			<joint>bucket_joint</joint>
+			<mimicJoint>bucket_a_joint</mimicJoint>
 			<multiplier>${-92/160}</multiplier>
 			<offset>0</offset>
 			<robotNamespace>/zx120</robotNamespace>
 		</plugin>
 	</gazebo>
 
-	<link name="link3">
+	<link name="boom_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -227,15 +226,15 @@
 		</inertial>
 	</link>
 
-	<joint name="joint3" type="revolute">
+	<joint name="arm_joint" type="revolute">
 		<origin xyz="4.2241 0 1.7311"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link3"/>
-		<child link="link4"/>
+		<parent link="boom_link"/>
+		<child link="arm_link"/>
 		<limit lower="${radians(-70)}" upper="${radians(50)}" effort="500" velocity="6.159937255"/>
 	</joint>
 
-	<link name="link4">
+	<link name="arm_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -260,15 +259,15 @@
 	</link>
 
 	<!-- bucket axis -->
-	<joint name="joint4" type="revolute">
+	<joint name="bucket_joint" type="revolute">
 		<origin xyz="0.35383 0 -2.4712"/>
 		<axis xyz="0 1 0"/>
-		<parent link="link4"/>
-		<child link="link5"/>
+		<parent link="arm_link"/>
+		<child link="bucket_link"/>
 		<limit lower="${radians(-160)}" upper="0" effort="500" velocity="6.159937255"/>
 	</joint>
 
-	<link name="link5">
+	<link name="bucket_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -292,7 +291,7 @@
 		</inertial>
 	</link>
 
-	<link name="link6">
+	<link name="boom_cylinder_head_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -316,7 +315,7 @@
 		</inertial>
 	</link>
 
-	<link name="link7">
+	<link name="boom_cylinder_rod_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -340,7 +339,7 @@
 		</inertial>
 	</link>
 
-	<link name="link8">
+	<link name="arm_cylinder_head_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -364,7 +363,7 @@
 		</inertial>
 	</link>
 
-	<link name="link9">
+	<link name="arm_cylinder_rod_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -388,7 +387,7 @@
 		</inertial>
 	</link>
 
-	<link name="link10">
+	<link name="bucket_cylinder_head_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -412,7 +411,7 @@
 		</inertial>
 	</link>
 
-	<link name="link11">
+	<link name="bucket_cylinder_rod_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -436,7 +435,7 @@
 		</inertial>
 	</link>
 
-	<link name="link12">
+	<link name="bucket_b_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -460,7 +459,7 @@
 		</inertial>
 	</link>
 
-	<link name="link13">
+	<link name="bucket_a_link">
 		<visual>
 			<origin xyz="0 0 0"/>
 			<geometry>
@@ -486,7 +485,7 @@
 
 	<transmission name="tran1">
 		<type>transmission_interface/SimpleTransmission</type>
-		<joint name="joint1">
+		<joint name="body_joint">
 			<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 		</joint>
 		<actuator name="motor1">
@@ -497,7 +496,7 @@
 
 	<transmission name="tran2">
 		<type>transmission_interface/SimpleTransmission</type>
-		<joint name="joint2">
+		<joint name="boom_joint">
 			<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 		</joint>
 		<actuator name="motor2">
@@ -508,7 +507,7 @@
 
 	<transmission name="tran3">
 		<type>transmission_interface/SimpleTransmission</type>
-		<joint name="joint3">
+		<joint name="arm_joint">
 			<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 		</joint>
 		<actuator name="motor3">
@@ -519,7 +518,7 @@
 
 	<transmission name="tran4">
 		<type>transmission_interface/SimpleTransmission</type>
-		<joint name="joint4">
+		<joint name="bucket_joint">
 			<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 		</joint>
 		<actuator name="motor4">

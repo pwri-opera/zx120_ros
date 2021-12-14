@@ -8,61 +8,48 @@
 			<robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
 		</plugin>
 	</gazebo>
-
-	<gazebo reference="link1">
+	<gazebo reference="track_link">
 		<material>zx120texture</material>
 	</gazebo>
-
-	<gazebo reference="link2">
+	  <gazebo reference="body_link">
+    <material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="boom_link">
+    	<material>zx120texture</material>
+  	</gazebo>
+	<gazebo reference="arm_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="bucket_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="bucket_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="boom_cylinder_head_link">
 		<material>zx120texture</material>
 	</gazebo>
-
-	<gazebo reference="link3">
+	<gazebo reference="boom_cylinder_rod_link">
 		<material>zx120texture</material>
 	</gazebo>
-
-	<gazebo reference="link4">
-		<material>zx120texture</material>
+	<gazebo reference="arm_cylinder_head_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="arm_cylinder_rod_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="bucket_cylinder_head_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="bucket_cylinder_rod_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="bucket_b_link">
+    	<material>zx120texture</material>
+	</gazebo>
+	<gazebo reference="bucket_a_link">
+    	<material>zx120texture</material>
 	</gazebo>
 
-	<gazebo reference="link5">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link5">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link6">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link7">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link8">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link9">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link10">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link11">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link12">
-		<material>zx120texture</material>
-	</gazebo>
-
-	<gazebo reference="link13">
-		<material>zx120texture</material>
-	</gazebo>
 
 </robot>
