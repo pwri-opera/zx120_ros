@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+	<param name="robot_description"
+		command="$(find xacro)/xacro --inorder '$(find zx120_description)/urdf/zx120.xacro'" />
+
+	<arg name="gui" default="True"/>
+
+	<node if="$(arg gui)" name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>
+	<node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find zx120_description)/rviz/urdf.rviz"/>
+
+</launch>
