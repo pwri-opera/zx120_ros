@@ -70,23 +70,23 @@
 
 	<!-- boom axis -->
 	<joint name="boom_joint" type="revolute">
-		<origin xyz="0.15433 -0.16443 0.31327"/>
+		<origin xyz="0.14 -0.16443 0.424" rpy="0 ${radians(90)} 0"/>
 		<axis xyz="0 1 0"/>
 		<parent link="body_link"/>
 		<child link="boom_link"/>
-		<limit lower="${radians(-70)}" upper="${radians(30)}" effort="500" velocity="6.159937255"/>
+		<limit lower="${radians(-70)}" upper="${radians(44)}" effort="500" velocity="6.159937255"/>
 	</joint>
 
 	<link name="boom_link">
 		<visual>
-			<origin xyz="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 -1.185 0"/>
 			<geometry>
 				<mesh filename="package://zx120_description/meshes/zx120-boom.dae"/>
 			</geometry>
 		</visual>
 
 		<collision>
-			<origin xyz="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 -1.185 0"/>
 			<geometry>
 				<mesh filename="package://zx120_description/meshes/zx120-boom.dae"/>
 			</geometry>
@@ -102,23 +102,23 @@
 	</link>
 
 	<joint name="arm_joint" type="revolute">
-		<origin xyz="4.2241 0 1.7311"/>
+		<origin xyz="0 0 4.6"/>
 		<axis xyz="0 1 0"/>
 		<parent link="boom_link"/>
 		<child link="arm_link"/>
-		<limit lower="${radians(-70)}" upper="${radians(50)}" effort="500" velocity="6.159937255"/>
+	    <limit effort="1" lower="${radians(30)}" upper="${radians(152)}" velocity="0.5"/>
 	</joint>
 
 	<link name="arm_link">
 		<visual>
-			<origin xyz="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 3.28 0"/>
 			<geometry>
 				<mesh filename="package://zx120_description/meshes/zx120-arm.dae"/>
 			</geometry>
 		</visual>
 
 		<collision>
-			<origin xyz="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 3.28 0"/>
 			<geometry>
 				<mesh filename="package://zx120_description/meshes/zx120-arm.dae"/>
 			</geometry>
@@ -135,16 +135,16 @@
 
 	<!-- bucket axis -->
 	<joint name="bucket_joint" type="revolute">
-		<origin xyz="0.35383 0 -2.4712"/>
+		<origin xyz="0 0 2.519"/>
 		<axis xyz="0 1 0"/>
 		<parent link="arm_link"/>
 		<child link="bucket_link"/>
-		<limit lower="${radians(-160)}" upper="0" effort="500" velocity="6.159937255"/>
+	    <limit effort="1" lower="${radians(-33)}" upper="${radians(143)}" velocity="0.5"/>
 	</joint>
 
 	<link name="bucket_link">
 		<visual>
-			<origin xyz="0 0 0"/>
+			<origin xyz="0 0 0" rpy="0 0.75 0"/>
 			<geometry>
 				<mesh filename="package://zx120_description/meshes/zx120-bucket.dae"/>
 			</geometry>
@@ -187,9 +187,6 @@
     <parent link="bucket_link"/>
     <child link="bucket_end_link"/>
     <axis xyz="1 0 0"/>
-    <!-- <origin rpy="0 0 0" xyz="0 0 1.23"/> -->
-    <!-- <origin rpy="0 0 0" xyz="-0.723 0 0.995"/> -->
-    <!-- <origin rpy="0 0 0" xyz="-0.85 0 0.889"/> -->
     <origin rpy="0 ${radians(50)} 0" xyz="0 0 1.23"/>
     <limit effort="1" lower="-3.14" upper="3.14" velocity="0.5"/>
   </joint>
