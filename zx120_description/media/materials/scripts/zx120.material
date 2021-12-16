@@ -1,0 +1,14 @@
+material zx120texture
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture zx120.png
+				scale 1 1
+			}
+		}
+	}
+}
