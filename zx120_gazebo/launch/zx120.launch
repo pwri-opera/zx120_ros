@@ -1,0 +1,68 @@
+<launch>
+  <arg name="robot_name" default=""/>
+  <arg name="init_pose" default=""/>
+  <arg name="init_joint_pose" default=""/>
+  <!-- <arg name="final_spawn" default="false"/>
+ 
+  <arg unless="$(arg final_spawn)" name="unpause" value=""/>
+  <arg if="$(arg final_spawn)" name="unpause" value="-unpause"/> -->
+
+  <arg name="model" default="$(find zx120_description)/urdf/zx120.xacro"/>
+  
+<group ns="$(arg robot_name)">
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
+    <param name="tf_prefix" value="$(arg robot_name)_tf" />
+
+    <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="$(arg init_pose) -urdf -param robot_description -model $(arg robot_name) $(arg init_joint_pose) -unpause" respawn="false" output="screen"/>
+
+    <!-- <node name="gazebo_odom_truth" pkg="gazebo_tools" type="nav_gazebo_odom"  output="screen">
+      <param name="model_name"  value="$(arg robot_name)" />
+      <param name="odom_frame" value="world" />
+      <param name="base_frame"  value="$(arg robot_name)_tf/base_link" />
+      <param name="publish_rate"  value="20" />
+      <param name="noise"  value="0.0" />
+      <param name="tf_enable" value="falses" />
+      <remap from="odom" to="tracking/groundtruth" />
+    </node> -->
+
+
+    <!-- <rosparam command="load" file="$(find zx135u_gazebo)/config/diff_drive_controller.yaml"/>
+    <param name="diff_drive_controller/base_frame_id" value="$(arg robot_name)_tf/base_link"/>
+    <param name="diff_drive_controller/odom_frame_id" value="$(arg robot_name)_tf/odom"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="diff_drive_controller"/> -->
+
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+      <param name="publish_frequency" type="double" value="50.0" />
+    </node>
+
+    <rosparam file="$(find zx120_control)/config/zx120_control.yaml" command="load"/>
+
+    <node name="joint_state_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn joint_state_controller" respawn="false" output="screen"/>
+
+    <!-- <rosparam file="$(find excavator_control)/config/zx120_control.yaml" command="load"/> -->
+    <node name="upper_arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn upper_arm_controller" respawn="false" output="screen" />
+
+    <include file="$(find zx120_moveit_config)/launch/planning_context.launch">
+      <arg name="load_robot_description" value="true"/>
+    </include>
+
+    <include file="$(find zx120_moveit_config)/launch/move_group.launch">
+      <arg name="publish_monitored_planning_scene" value="true"/>
+    </include>
+
+    <!-- <node pkg="robot_localization" type="ekf_localization_node" name="ekf_global" clear_params="true" output="screen">
+      <rosparam command="load" file="$(find zx135u_gazebo)/config/zx120_ekf.yaml"/>
+      <param name="tf_prefix" value=""/>
+      <param name="map_frame" value="map"/>
+      <param name="world_frame" value="map"/>
+      <param name="odom_frame" value="$(arg robot_name)_tf/odom"/>
+      <param name="base_link_frame" value="$(arg robot_name)_tf/base_link"/>
+      <remap from="odometry/filtered" to="/$(arg robot_name)/odometry/global" />
+      <remap from="odom0" to="/$(arg robot_name)/diff_drive_controller/odom" />
+      <remap from="odom1" to="/$(arg robot_name)/tracking/groundtruth" />
+    </node> -->
+
+  </group>
+</launch>

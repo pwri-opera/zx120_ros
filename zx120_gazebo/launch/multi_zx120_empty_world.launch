@@ -1,0 +1,30 @@
+<launch>
+  <param name="/use_sim_time" value="true" />
+  <arg name= "limited" default= "false"/>
+  <arg name="paused" default="true" doc="Starts gazebo in paused mode" />
+  <arg name="gui" default="false" doc="Starts gazebo gui" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" default="worlds/empty.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+  <include file="$(find zx120_gazebo)/launch/zx120.launch">
+    <arg name="robot_name" value="zx120"/>
+    <arg name="init_pose" value="-x 0 -y 0 -z 0.1"/>
+    <arg name="init_joint_pose" value="-J boom_joint -0.5"/>
+  </include>
+
+  <include file="$(find zx120_gazebo)/launch/zx120.launch">
+    <arg name="robot_name" value="zx120_2"/>
+    <arg name="init_pose" value="-x 0 -y 3 -z 0.1"/>
+  </include>
+
+  <include file="$(find zx120_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="rviz_config" value="$(find zx120_gazebo)/rviz/multi_moveit_robot.rviz"/>
+  </include>
+
+
+
+</launch>
