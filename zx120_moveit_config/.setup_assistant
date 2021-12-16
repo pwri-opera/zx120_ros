@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: zx120_description
+    relative_path: urdf/zx120.urdf
+    xacro_args: ""
+  SRDF:
+    relative_path: config/zx120.srdf
+  CONFIG:
+    author_name: Genki Yamauchi
+    author_email: yamauchi-g573bs@pwri.go.jp
+    generated_timestamp: 1639574522

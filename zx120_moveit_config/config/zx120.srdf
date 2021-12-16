@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<!--This does not replace URDF, and is not an extension of URDF.
+    This is a format for representing semantic information about the robot structure.
+    A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
+-->
+<robot name="zx120">
+    <!--GROUPS: Representation of a set of joints and links. This can be useful for specifying DOF to plan for, defining arms, end effectors, etc-->
+    <!--LINKS: When a link is specified, the parent joint of that link (if it exists) is automatically included-->
+    <!--JOINTS: When a joint is specified, the child link of that joint (which will always exist) is automatically included-->
+    <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
+    <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
+    <group name="manipulator">
+        <link name="base_link" />
+        <link name="track_link" />
+        <link name="body_link" />
+        <link name="boom_link" />
+        <link name="arm_link" />
+        <link name="bucket_link" />
+        <link name="bucket_end_link" />
+        <joint name="base_joint" />
+        <joint name="swing_joint" />
+        <joint name="boom_joint" />
+        <joint name="arm_joint" />
+        <joint name="bucket_joint" />
+        <joint name="bucket_end_joint" />
+        <chain base_link="base_link" tip_link="bucket_end_link" />
+    </group>
+    <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
+    <group_state name="home" group="manipulator">
+        <joint name="arm_joint" value="1.803" />
+        <joint name="boom_joint" value="-0.5514" />
+        <joint name="bucket_end_joint" value="0" />
+        <joint name="bucket_joint" value="1.0172" />
+        <joint name="swing_joint" value="0" />
+    </group_state>
+    <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
+    <disable_collisions link1="arm_link" link2="body_link" reason="Never" />
+    <disable_collisions link1="arm_link" link2="boom_link" reason="Adjacent" />
+    <disable_collisions link1="arm_link" link2="bucket_end_link" reason="Never" />
+    <disable_collisions link1="arm_link" link2="bucket_link" reason="Adjacent" />
+    <disable_collisions link1="arm_link" link2="track_link" reason="Never" />
+    <disable_collisions link1="body_link" link2="boom_link" reason="Adjacent" />
+    <disable_collisions link1="body_link" link2="bucket_end_link" reason="Never" />
+    <disable_collisions link1="body_link" link2="bucket_link" reason="Never" />
+    <disable_collisions link1="body_link" link2="track_link" reason="Adjacent" />
+    <disable_collisions link1="boom_link" link2="bucket_end_link" reason="Never" />
+    <disable_collisions link1="boom_link" link2="bucket_link" reason="Never" />
+    <disable_collisions link1="bucket_end_link" link2="bucket_link" reason="Adjacent" />
+    <disable_collisions link1="bucket_end_link" link2="track_link" reason="Never" />
+</robot>
