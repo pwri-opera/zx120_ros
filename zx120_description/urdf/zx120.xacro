@@ -37,7 +37,7 @@
 	</link>
 
 	<!-- body axis -->
-	<joint name="body_joint" type="continuous">
+	<joint name="swing_joint" type="continuous">
 		<origin xyz="0 0 1"/>
 		<axis xyz="0 0 2"/>
 		<parent link="track_link"/>
@@ -485,8 +485,7 @@
 
 	<transmission name="tran1">
 		<type>transmission_interface/SimpleTransmission</type>
-		<joint name="body_joint">
-			<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+		<joint name="swing_joint">
 		</joint>
 		<actuator name="motor1">
 			<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
