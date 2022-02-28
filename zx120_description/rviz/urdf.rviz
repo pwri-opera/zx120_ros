@@ -4,16 +4,12 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /RobotModel1
-        - /RobotModel1/Links1
-        - /RobotModel1/Links1/link11
-        - /RobotModel1/Links1/link21
-        - /RobotModel1/Links1/link31
-        - /RobotModel1/Links1/link41
-        - /RobotModel1/Links1/world1
         - /TF1
+        - /TF1/Tree1
       Splitter Ratio: 0.5
-    Tree Height: 320
+    Tree Height: 273
   - Class: rviz/Views
     Expanded:
       - /Current View1
@@ -52,33 +48,43 @@ Visualization Manager:
       Links:
         All Links Enabled: true
         Expand Joint Details: false
-        Expand Link Details: true
+        Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        link1:
+        arm_link:
           Alpha: 1
-          Show Axes: true
+          Show Axes: false
           Show Trail: false
           Value: true
-        link2:
+        base_link:
           Alpha: 1
-          Show Axes: true
+          Show Axes: false
+          Show Trail: false
+        body_link:
+          Alpha: 1
+          Show Axes: false
           Show Trail: false
           Value: true
-        link3:
+        boom_link:
           Alpha: 1
-          Show Axes: true
+          Show Axes: false
           Show Trail: false
           Value: true
-        link4:
+        bucket_end_link:
           Alpha: 1
-          Show Axes: true
+          Show Axes: false
           Show Trail: false
           Value: true
-        world:
+        bucket_link:
           Alpha: 1
-          Show Axes: true
+          Show Axes: false
           Show Trail: false
+          Value: true
+        track_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -86,24 +92,45 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: true
-      Marker Scale: 1
+        arm_link:
+          Value: true
+        base_link:
+          Value: true
+        body_link:
+          Value: true
+        boom_link:
+          Value: true
+        bucket_end_link:
+          Value: true
+        bucket_link:
+          Value: true
+        track_link:
+          Value: true
+      Marker Scale: 3
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        base_link:
+          track_link:
+            body_link:
+              boom_link:
+                arm_link:
+                  bucket_link:
+                    bucket_end_link:
+                      {}
       Update Interval: 0
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: world
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -112,35 +139,35 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 11.03872013092041
+      Distance: 12.568124771118164
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -1.0382649898529053
-        Y: 0.32612448930740356
-        Z: 1.1803019046783447
+        X: 1.0300469398498535
+        Y: -0.9227667450904846
+        Z: 0.4927521347999573
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.26539865136146545
+      Pitch: 0.17039845883846283
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.1635847091674805
+      Yaw: 1.255397915840149
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 845
+  Height: 759
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd000000010000000000000156000002f1fc0200000002fb000000100044006900730070006c006100790073010000003e000001c4000000ca00fffffffb0000000a00560069006500770073010000020800000127000000a600ffffff00000401000002f100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001560000029dfc0200000002fb000000100044006900730070006c006100790073010000003d00000194000000c900fffffffb0000000a0056006900650077007301000001d700000103000000a400ffffff000004b70000029d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1373
-  X: 67
+  Width: 1555
+  X: 365
   Y: 27
