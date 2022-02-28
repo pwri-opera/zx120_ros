@@ -1,0 +1,42 @@
+# for wheel and imu fusion
+
+frequency: 10
+sensor_timeout: 0.1
+two_d_mode: true
+transform_time_offset: 0.0
+transform_timeout: 0.0
+print_diagnostics: true
+publish_tf: true
+publish_acceleration: false
+
+map_frame: map
+odom_frame: odom
+base_link_frame: base_link
+world_frame: map
+
+
+#odom0: wheel odometry + GNSS Compass
+odom0: odom0
+odom0_config: [true, true, false,
+               false, false, true,
+               false , false, false,
+               false, false, false,
+               false, false, false]
+odom0_differential: false
+
+#odom1: RTK GNSS Position
+odom1: odom1
+odom1_config: [true, true, true,
+               false, false, true,
+               false , false, false,
+               false, false, false,
+               false, false, false]
+odom1_differential: false
+
+#imu0
+# imu0: imu0
+# imu0_config: [false, false, false,
+#               false, false, true,
+#               false, false, false,
+#               false, false, true,
+#               false, false, false]
