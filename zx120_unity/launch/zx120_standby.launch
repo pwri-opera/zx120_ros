@@ -1,0 +1,17 @@
+<launch>
+  <param name="/use_sim_time" value="true" />
+  <!-- <arg name="robot_name" default="ic120_2"/>
+  <arg name="init_pose" default="-x 0 -y -0 -z 0.2"/> -->
+
+  <!-- <arg name="gui" default="false" doc="Starts gazebo gui" /> -->
+  <arg name="robot_name" value="zx120"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="world_to_map" args="0 0 0 0 0 0 world map 30"/>
+
+  <include file="$(find zx120_unity)/launch/zx120_unity.launch">
+    <arg name="init_pose" value="-x 0 -y 0 -z 0"/>
+    <arg name="robot_name" value="$(arg robot_name)"/>
+  </include>
+  
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find zx120_unity)/rviz/zx120_standby.rviz"/>
+</launch>

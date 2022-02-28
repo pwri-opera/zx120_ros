@@ -1,0 +1,93 @@
+<launch>
+  <arg name="robot_name"/>
+  <arg name="init_pose"/>
+
+  <group ns="$(arg robot_name)">
+    <arg name="model" default="$(find zx120_description)/urdf/zx120.xacro"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
+    <param name="tf_prefix" value="$(arg robot_name)_tf" />
+
+    <node name="odom_broadcaster" pkg="unity_tools" type="odom_broadcaster.py" output="screen">
+      <param name="odom_frame" value="$(arg robot_name)_tf/odom"/>
+      <param name="base_link_frame" value="$(arg robot_name)_tf/base_link" />
+    </node>
+
+    <node name="poseStamped2ground_truth_odom" pkg="unity_tools" type="poseStamped2Odometry.py" output="screen">
+      <param name="odom_header_frame" value="world"/>
+      <param name="odom_child_frame" value="$(arg robot_name)_tf/base_link" />
+      <param name="poseStamped_topic_name" value="base_link/pose"/>
+      <param name="odom_topic_name" value="tracking/ground_truth" />
+    </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_global" clear_params="true" output="screen">
+      <!-- <rosparam command="load" file="$(find ic120_unity)/config/ic120_ekf.yaml"/> -->
+      <rosparam command="load" file="$(find zx120_navigation)/config/zx120_ekf.yaml"/>
+      <param name="tf_prefix" value=""/>
+      <param name="map_frame" value="map"/>
+      <param name="world_frame" value="map"/>
+      <param name="odom_frame" value="$(arg robot_name)_tf/odom"/>
+      <param name="base_link_frame" value="$(arg robot_name)_tf/base_link"/>
+      <remap from="odometry/filtered" to="/$(arg robot_name)/odometry/global" />
+      <remap from="odom0" to="/$(arg robot_name)/odom" />
+      <remap from="odom1" to="/$(arg robot_name)/tracking/ground_truth" />
+    </node>
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+      <rosparam file="$(find zx120_navigation)/params/costmap_common_params.yaml" command="load" ns="global_costmap" />
+      <rosparam file="$(find zx120_navigation)/params/costmap_common_params.yaml" command="load" ns="local_costmap" />
+      <rosparam file="$(find zx120_navigation)/params/odom_nav_params/global_costmap_params.yaml" command="load" />
+      <rosparam file="$(find zx120_navigation)/params/odom_nav_params/local_costmap_params.yaml" command="load" />
+      <rosparam file="$(find zx120_navigation)/params/base_local_planner_params.yaml" command="load" />
+      <rosparam file="$(find zx120_navigation)/params/move_base_params.yaml" command="load" />
+      <param name="base_global_planner" type="string" value="global_planner/GlobalPlanner" />
+      <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+      <param name="global_costmap/global_frame" value="map"/>
+      <param name="global_costmap/robot_base_frame" value="$(arg robot_name)_tf/base_link"/>
+      <param name="local_costmap/global_frame" value="map"/>
+      <param name="local_costmap/robot_base_frame" value="$(arg robot_name)_tf/base_link"/>
+
+      <remap from="cmd_vel" to="tracks/cmd_vel" />
+      <remap from="odom" to="odom" /> 
+    </node>
+
+
+    <!-- MoveIt -->
+    <include file="$(find zx120_moveit_config)/launch/planning_context.launch">
+      <arg name="load_robot_description" value="true"/>
+    </include>
+
+    <arg name="pipeline" default="ompl" />
+    <arg name="debug" default="false" />
+
+    <include file="$(find zx120_moveit_config)/launch/move_group.launch">
+      <arg name="allow_trajectory_execution" value="true"/>
+      <!-- <arg name="fake_execution" value="$(arg fake_execution)"/> -->
+      <arg name="info" value="true"/>
+      <arg name="debug" value="$(arg debug)"/>
+      <arg name="pipeline" value="$(arg pipeline)"/>
+      <!-- <arg name="use_gazebo" value="$(arg use_gazebo)"/> -->
+    </include>
+    <param name="move_group/trajectory_execution/allowed_execution_duration_scaling" value="3.0"/>
+
+
+    <rosparam file="$(find zx120_control)/config/zx120_control.yaml" command="load"/>
+
+    <node name="controller_manager"
+        pkg="controller_manager"
+        type="spawner" respawn="false"
+        output="screen"
+        args="upper_arm_controller"/>
+
+
+    <node name="upper_arm_control" pkg="zx120_control" type="upper_arm_control" output="screen" respawn="false">
+      <!-- <remap from="joint_states" to="/zx120/joint_states"> -->
+      <remap from="swing/setpoint" to="swing/cmd"/>
+      <remap from="boom/setpoint" to="boom/cmd"/>
+      <remap from="arm/setpoint" to="arm/cmd"/>
+      <remap from="bucket/setpoint" to="bucket/cmd"/>
+    </node>
+
+  </group>
+</launch>
