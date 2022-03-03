@@ -1,0 +1,18 @@
+<launch>
+    <group ns="zx120">
+        <param name="tf_prefix" value="zx120"/>
+        <include file="$(find zx120_moveit_config)/launch/demo.launch"/>
+        <include file="$(find map_base_broadcaster)/launch/map_base_broadcast.launch"/>
+        <include file="$(find odom_publisher)/launch/odom_publisher.launch"/>
+        <include file="$(find deadtime_compensation)/launch/deadtime_compensation.launch">
+            <arg name="enable" value="true"/>
+        </include>
+        <!-- node name="dig_and_release_server" pkg="dig_and_release" type="dig_and_release_server" output="screen"/-->
+        <include file="$(find excavator_pid_control)/launch/zx120_pid.launch">
+            <arg name="dt_compensate" value="true"/>
+            <arg name="ff_enable" value="false"/>
+        </include>
+        <include file="$(find common_control_message)/launch/excavator_common_msg.launch"/>
+    </group>
+    <include file="$(find excavator_launch)/launch/ekf_localization.launch"/>
+</launch>
