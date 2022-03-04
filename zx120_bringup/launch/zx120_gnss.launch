@@ -1,0 +1,36 @@
+<launch>
+    <group ns="zx120">
+        <group ns="gnss_compass">
+
+        <node name="nmea_serial_driver_node" pkg="nmea_navsat_driver" type="nmea_serial_driver" output="screen">
+            <param name="port" value="/dev/ttyS2"/>
+            <param name="baud" value="115200" />
+            <param name="frame_id" value="map" />
+            <param name="use_GNSS_time" value="False" />
+            <param name="time_ref_source" value="gps" />
+            <param name="useRMC" value="False" />
+            <node pkg="gnss_localizer" type="fix2tfpose" name="fix2tfpose" output="log">
+                <param name="plane" value="9"/>
+                <remap from="fix" to="fix_remapped"/>
+            </node>
+            <!-- <remap from="heading" to="/rotator/state"/> -->
+         </node>
+	 <node pkg="gnss_localizer" type="fix2tfpose" name="fix2tfpose" output="log">
+            <param name="plane" value="9"/>
+         </node>
+
+
+        </group>
+        <!-- <group ns="gnss">
+            <include file ="$(find nmea_navsat_driver)/launch/nmea_serial_driver.launch">
+                <arg name="port" value="/dev/ttyUSB0"/>
+                <arg name="baud" value="115200"/>
+                <arg name="frame_id" value="gnss_compass"/>
+            </include>
+            <node pkg="gnss_localizer" type="fix2tfpose" name="fix2tfpose" output="log">
+                <param name="plane" value="9"/>
+                <remap from="fix" to="fix_remapped"/>
+            </node>
+        </group> -->
+    </group>
+</launch>
