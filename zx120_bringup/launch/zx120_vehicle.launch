@@ -14,5 +14,5 @@
         </include>
         <include file="$(find common_control_message)/launch/excavator_common_msg.launch"/>
     </group>
-    <include file="$(find excavator_launch)/launch/ekf_localization.launch"/>
+    <include file="$(find zx120_bringup)/launch/ekf_localization.launch"/>
 </launch>
