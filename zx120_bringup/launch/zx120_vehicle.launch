@@ -1,7 +1,7 @@
 <launch>
-    <group ns="zx120">
-        <param name="tf_prefix" value="zx120"/>
-        <include file="$(find zx120_moveit_config)/launch/demo.launch"/>
+	<arg name="robot_name" default="zx120"/>
+    <group ns="$(arg robot_name)">
+        <param name="tf_prefix" value="$(arg robot_name)"/>
         <include file="$(find map_base_broadcaster)/launch/map_base_broadcast.launch"/>
         <include file="$(find odom_publisher)/launch/odom_publisher.launch"/>
         <include file="$(find deadtime_compensation)/launch/deadtime_compensation.launch">
@@ -13,6 +13,49 @@
             <arg name="ff_enable" value="false"/>
         </include>
         <include file="$(find common_control_message)/launch/excavator_common_msg.launch"/>
+
+		<!-- MoveIt -->
+		<include file="$(find zx120_moveit_config)/launch/planning_context.launch">
+		<arg name="load_robot_description" value="true"/>
+		</include>
+
+		<arg name="pipeline" default="ompl" />
+		<arg name="debug" default="false" />
+
+		<include file="$(find zx120_moveit_config)/launch/move_group.launch">
+		<arg name="allow_trajectory_execution" value="true"/>
+		<!-- <arg name="fake_execution" value="$(arg fake_execution)"/> -->
+		<arg name="info" value="true"/>
+		<arg name="debug" value="$(arg debug)"/>
+		<arg name="pipeline" value="$(arg pipeline)"/>
+		<!-- <arg name="use_gazebo" value="$(arg use_gazebo)"/> -->
+		</include>
+		<param name="move_group/trajectory_execution/allowed_execution_duration_scaling" value="3.0"/>
+
+		<rosparam file="$(find zx120_control)/config/zx120_control.yaml" command="load"/>
+
+		<node name="controller_manager"
+			pkg="controller_manager"
+			type="spawner" respawn="false"
+			output="screen"
+			args="upper_arm_controller"/>
+
+		<node name="upper_arm_control" pkg="zx120_control" type="upper_arm_control" output="screen" respawn="false">
+			<remap from="joint_states" to="ac58_joint_publisher/joint_states"/>
+			<remap from="swing/setpoint" to="swing/cmd"/>
+			<remap from="boom/setpoint" to="boom/cmd"/>
+			<remap from="arm/setpoint" to="arm/cmd"/>
+			<remap from="bucket/setpoint" to="bucket/cmd"/>
+		</node>
+
+		<!-- We do not have a robot connected, so publish fake joint states -->
+		<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+			<rosparam param="source_list">[ac58_joint_publisher/joint_states]</rosparam>
+		</node>
+
+		<!-- Given the published joint states, publish tf for the robot links -->
+		<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+
     </group>
     <include file="$(find zx120_bringup)/launch/ekf_localization.launch"/>
 </launch>

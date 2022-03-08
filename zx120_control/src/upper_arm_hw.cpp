@@ -53,7 +53,7 @@ Upper_Arm::Upper_Arm()
   arm_state_pub = nh.advertise<std_msgs::Float64>("arm/state", 100);
   bucket_state_pub = nh.advertise<std_msgs::Float64>("bucket/state", 100);
 
-  js_sub = nh.subscribe("sub_joint_states", 10, &Upper_Arm::jsCallback, this);
+  js_sub = nh.subscribe("joint_states", 10, &Upper_Arm::jsCallback, this);
   fake_sub = nh.subscribe("fake_joint_state", 10, &Upper_Arm::faketimeCallback, this);
 }
 
