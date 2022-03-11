@@ -1,0 +1,10 @@
+<launch>
+    <node name="swing_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/swing/pid_enable std_msgs/Bool &quot;{data: true}&quot;" />
+    <node name="boom_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/boom/pid_enable std_msgs/Bool &quot;{data: true}&quot;" />
+    <node name="arm_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/arm/pid_enable std_msgs/Bool &quot;{data: true}&quot;" />
+    <node name="bucket_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/bucket/pid_enable std_msgs/Bool &quot;{data: true}&quot;" />
+</launch>

@@ -8,7 +8,7 @@
             <arg name="enable" value="true"/>
         </include>
         <!-- node name="dig_and_release_server" pkg="dig_and_release" type="dig_and_release_server" output="screen"/-->
-        <include file="$(find excavator_pid_control)/launch/zx120_pid.launch">
+        <include file="$(find zx120_bringup)/launch/zx120_pid_control.launch">
             <arg name="dt_compensate" value="true"/>
             <arg name="ff_enable" value="false"/>
         </include>

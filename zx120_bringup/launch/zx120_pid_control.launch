@@ -1,0 +1,190 @@
+<launch>
+    <arg name="ff_enable" default="false" />
+    <arg name="dt_compensate" default="false" />
+
+    <group if="$(arg dt_compensate)">
+         <node name="swing_controller" pkg="pid" type="controller" ns="swing" output="screen" >
+            <param name="node_name" value="swing_pid" />
+            <param name="Kp" value="0.75" />
+            <param name="Ki" value="0.00" />
+            <param name="Kd" value="0.05" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <remap from="state" to="predicted_state"/>
+            <remap from="setpoint" to="setpoint_common" />
+            <param name="angle_error" value="true"/>
+            <param name="cutoff_frequency" value="3" />
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+
+        <node name="boom_controller" pkg="pid" type="controller" ns="boom" output="screen" >
+            <param name="node_name" value="boom_pid" />
+            <param name="Kp" value="4.2" />
+            <param name="Ki" value="0.0" />
+            <param name="Kd" value="0.15" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <param name="cutoff_frequency" value="5" />
+            <remap from="setpoint" to="setpoint_common" />
+            <!--remap from="setpoint" to="setpoint_tmp" /-->
+            <!--param name="topic_from_controller" value="/"-->
+            <!--param name="topic_from_plant" value=""-->
+            <remap from="state" to="predicted_state"/>
+            <param name="angle_error" value="true"/>
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+
+        <node name="arm_controller" pkg="pid" type="controller" ns="arm" output="screen" >
+            <param name="node_name" value="arm_pid" />
+            <param name="Kp" value="4.1 " />
+            <param name="Ki" value="0.008" />
+            <param name="Kd" value="0.025" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <remap from="setpoint" to="setpoint_common" />
+            <!--param name="topic_from_controller" value="/"-->
+            <!--param name="topic_from_plant" value=""-->
+            <param name="cutoff_frequency" value="5" />
+            <remap from="state" to="predicted_state"/>
+            <param name="angle_error" value="true"/>
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+
+        <node name="bucket_controller" pkg="pid" type="controller" ns="bucket" output="screen" >
+            <param name="node_name" value="bucket_pid" />
+            <param name="Kp" value="1.4" />
+            <param name="Ki" value="0.0" />
+            <param name="Kd" value="0.04" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <param name="cutoff_frequency" value="5" />
+            <!-- param name="cutoff_frequency_" value="100" / -->
+            <remap from="setpoint" to="setpoint_common" />
+            <!--param name="topic_from_controller" value="/"-->
+            <!--param name="topic_from_plant" value=""-->
+            <remap from="state" to="predicted_state"/>
+            <param name="angle_error" value="true"/>
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+    </group>
+
+    <group unless="$(arg dt_compensate)">
+         <node name="swing_controller" pkg="pid" type="controller" ns="swing" output="screen" >
+            <param name="node_name" value="swing_pid" />
+            <param name="Kp" value="0.60" />
+            <param name="Ki" value="0.00" />
+            <param name="Kd" value="0.10" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <param name="angle_error" value="true"/>
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+
+        <node name="boom_controller" pkg="pid" type="controller" ns="boom" output="screen" >
+            <param name="node_name" value="boom_pid" />
+            <param name="Kp" value="1.3" />
+            <param name="Ki" value="0.01" />
+            <param name="Kd" value="0.1" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <!--remap from="setpoint" to="/setpoint" /-->
+            <!--param name="topic_from_controller" value="/"-->
+            <!--param name="topic_from_plant" value=""-->
+            <param name="angle_error" value="true"/>
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+
+        <node name="arm_controller" pkg="pid" type="controller" ns="arm" output="screen" >
+            <param name="node_name" value="arm_pid" />
+            <param name="Kp" value="0.65" />
+            <param name="Ki" value="0.005" />
+            <param name="Kd" value="0.02" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <!--remap from="setpoint" to="/setpoint" /-->
+            <!--param name="topic_from_controller" value="/"-->
+            <!--param name="topic_from_plant" value=""-->
+            <param name="angle_error" value="true"/>
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+
+        <node name="bucket_controller" pkg="pid" type="controller" ns="bucket" output="screen" >
+            <param name="node_name" value="bucket_pid" />
+            <param name="Kp" value="0.25" />
+            <param name="Ki" value="0.007" />
+            <param name="Kd" value="0.02" />
+            <param name="upper_limit" value="0.5" />
+            <param name="lower_limit" value="-0.5" />
+            <param name="windup_limit" value="100" />
+            <param name="max_loop_frequency" value="100.0" />
+            <param name="min_loop_frequency" value="100.0" />
+            <param name="setpoint_timeout" value="1.0" />
+            <!-- param name="cutoff_frequency_" value="100" / -->
+            <!--remap from="setpoint" to="/setpoint" /-->
+            <!--param name="topic_from_controller" value="/"-->
+            <!--param name="topic_from_plant" value=""-->
+            <param name="angle_error" value="true"/>
+            <param name="ff_enable" value="$(arg ff_enable)"/>
+        </node>
+    </group>
+
+    <group if="$(arg ff_enable)">
+        <node name="ff_term" pkg="excavator_pid_control" type="ff_gravity_compensate" output="screen" >
+            <param name="bucket_ff_gain" value="0.00005" />
+            <param name="arm_ff_gain" value="0.00003" />
+            <param name="boom_ff_gain" value="0.000005" />
+        </node>
+    </group>
+
+    <node name="pid_effort2js_cmd" pkg="excavator_pid_control" type="pid_effort2js_cmd">
+        <remap from="pid_effoft2js_cmd/swing/control_effort" to="swing/control_effort"/>
+        <remap from="pid_effoft2js_cmd/boom/control_effort" to="boom/control_effort"/>
+        <remap from="pid_effoft2js_cmd/arm/control_effort" to="arm/control_effort"/>
+        <remap from="pid_effoft2js_cmd/bucket/control_effort" to="bucket/control_effort"/>
+
+        <remap from="pid_effoft2js_cmd/swing/pid_enable" to="swing/pid_enable"/>
+        <remap from="pid_effoft2js_cmd/boom/pid_enable" to="boom/pid_enable"/>
+        <remap from="pid_effoft2js_cmd/arm/pid_enable" to="arm/pid_enable"/>
+        <remap from="pid_effoft2js_cmd/bucket/pid_enable" to="bucket/pid_enable"/>
+
+        <remap from="pid_effoft2js_cmd/hitachi_ros/js_cmd" to="hitachi_ros/js_cmd"/>
+    </node>
+
+    <node name="swing_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/swing/pid_enable std_msgs/Bool &quot;{data: false}&quot;" />
+    <node name="boom_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/boom/pid_enable std_msgs/Bool &quot;{data: false}&quot;" />
+    <node name="arm_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/arm/pid_enable std_msgs/Bool &quot;{data: false}&quot;" />
+    <node name="bucket_pid_disabler" pkg="rostopic" type="rostopic"
+        args="pub -1 /zx120/bucket/pid_enable std_msgs/Bool &quot;{data: false}&quot;" />
+
+</launch>
