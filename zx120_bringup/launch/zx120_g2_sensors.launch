@@ -1,0 +1,42 @@
+  <launch>
+    <arg name="robot_name" default="zx120"/>
+    <group ns="$(arg robot_name)">
+        <node name="socketcan_to_topic" pkg="socketcan_bridge" type="socketcan_to_topic_node"/> 
+        <node name="g2_ros" pkg="g2_ros" type="g2_ros" ns="swing">
+            <rosparam command="load" file="$(find g2_ros)/config/g2_sensors.yaml"/>
+            <param name="g2_can_id" value="105"/>
+            <param name="frame_id" value="body_link"/>
+            <param name="offset_pitch_angle" value="0.003215"/>
+            <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/>
+        </node>
+        <node name="g2_ros" pkg="g2_ros" type="g2_ros" ns="boom">
+            <rosparam command="load" file="$(find g2_ros)/config/g2_sensors.yaml"/>
+            <param name="g2_can_id" value="103"/>
+            <param name="frame_id" value="boom_link"/>
+            <param name="offset_pitch_angle" value="-0.0749"/>
+            <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/>
+        </node>
+        <node name="g2_ros" pkg="g2_ros" type="g2_ros" ns="arm">
+            <rosparam command="load" file="$(find g2_ros)/config/g2_sensors.yaml"/>
+            <param name="g2_can_id" value="102"/>
+            <param name="frame_id" value="arm_link"/>
+            <param name="offset_pitch_angle" value="-0.0837"/>
+            <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/>
+        </node>
+        <node name="g2_ros" pkg="g2_ros" type="g2_ros" ns="bucket">
+            <rosparam command="load" file="$(find g2_ros)/config/g2_sensors.yaml"/>
+            <param name="g2_can_id" value="101"/>
+            <param name="frame_id" value="bucket_link"/>
+            <param name="offset_pitch_angle" value="0.015"/>
+            <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/>
+        </node>
+        <node name="imubased_js_publisehr" pkg="zx120_bringup" type="imubased_js_publisher">
+            <!-- <rosparam command="load" file="$(find g2_ros)/config/g2_sensors.yaml"/>
+            <param name="g2_can_id" value="101"/>
+            <param name="frame_id" value="bucket_link"/>
+            <param name="offset_pitch_angle" value="0.015"/>
+            <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/> -->
+        </node>
+        <!--remap from="$(arg robot_name)/swing/received_messages" to="$(arg robot_name)/received_messages"/-->
+    </group>
+</launch>
