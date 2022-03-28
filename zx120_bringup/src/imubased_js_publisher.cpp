@@ -2,19 +2,22 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Bool.h>
-//#include <tf2/convert.h>
+#include <tf2/convert.h>
 #include <tf/transform_broadcaster.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 //#include <can_msgs/Frame.h>
 
 //#include <g2_publisher/g2_publisher.hpp>
 
-sensor_msgs::JointState imubased_js;
-double base_link_pitch, base_link_roll;
 const int SWING=0;
 const int BOOM=1;
 const int ARM=2;
 const int BUCKET=3;
 const int NUM_AXIS=4;
+
+sensor_msgs::JointState imubased_js;
+geometry_msgs::Quaternion q_imu[NUM_AXIS];
+double base_link_pitch, base_link_roll;
 
 void GetRPY(const geometry_msgs::Quaternion &q, double &roll, double &pitch, double &yaw)
 {
@@ -44,46 +47,76 @@ double get_bucket_angle(double imu_angle){
 }
 
 void swing_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
-    double yaw;
+    double imu_r, imu_p, imu_y;
+    tf2::Quaternion odom2base_quat_tf, rot2base_quat_tf;
+    q_imu[SWING] = msg->orientation;
 
-    GetRPY(msg->orientation, base_link_roll, base_link_pitch, yaw);
+    rot2base_quat_tf.setRPY(0,0,imubased_js.position[SWING]);
+    GetRPY(q_imu[SWING], imu_r, imu_p, imu_y);
+    imu_r *= -1.0;
+
+    odom2base_quat_tf.setRPY(imu_r, imu_p, 0.0);
+
+    odom2base_quat_tf = odom2base_quat_tf * rot2base_quat_tf.inverse();/* swing -> baseの角度分のオフセットを取り込む */
+    odom2base_quat_tf.normalize();
+
+    double odom2base_roll, odom2base_pitch, odom2base_yaw;
+    geometry_msgs::Quaternion tmp;
+    tmp = tf2::toMsg(odom2base_quat_tf);
+
+    double yaw;
+    GetRPY(tmp, base_link_roll, base_link_pitch, yaw);
     base_link_roll *= -1.0; //符号反転
 }
 
 void boom_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
-    double roll, pitch, yaw;
+    double angle = 0.0;
+    tf2::Quaternion quat0, quat1;
 
-    GetRPY(msg->orientation, roll, pitch, yaw);
-    roll *= -1.0; //符号反転
+    q_imu[BOOM] = msg->orientation;
 
-    imubased_js.position[BOOM] = pitch - base_link_pitch;
+    tf2::convert(q_imu[BOOM], quat1);
+    tf2::convert(q_imu[SWING], quat0);
+
+    angle = -tf2::angleShortestPath(quat0, quat1);
+
+    imubased_js.position[BOOM] = angle;    
     imubased_js.velocity[BOOM] = msg->angular_velocity.y;
 }
 
 void arm_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
-    double roll, pitch, yaw;
+    double angle = 0.0;
+    tf2::Quaternion quat0, quat1;
 
-    GetRPY(msg->orientation, roll, pitch, yaw);
-    roll *= -1.0; //符号反転
+     q_imu[ARM] = msg->orientation;
 
-    imubased_js.position[ARM] = pitch - base_link_pitch - imubased_js.position[BOOM];
+    tf2::convert(q_imu[ARM], quat1);
+    tf2::convert(q_imu[BOOM], quat0);
+
+    angle = tf2::angleShortestPath(quat0, quat1);
+
+    imubased_js.position[ARM] = angle;
     imubased_js.velocity[ARM] = msg->angular_velocity.y;
 }
 
 void bucket_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
-    double roll, pitch, yaw;
+    double angle = 0.0;
+    tf2::Quaternion quat0, quat1;
 
-    GetRPY(msg->orientation, roll, pitch, yaw);
-    roll *= -1.0; //符号反転
+    q_imu[BUCKET] = msg->orientation;
 
-    imubased_js.position[BUCKET] = pitch - base_link_pitch - imubased_js.position[BOOM] - imubased_js.position[ARM];
-    imubased_js.position[BUCKET] = get_bucket_angle(imubased_js.position[BUCKET]);
+    tf2::convert(q_imu[BUCKET], quat1);
+    tf2::convert(q_imu[ARM], quat0);
+
+    angle = tf2::angleShortestPath(quat0, quat1);
+
+    imubased_js.position[BUCKET] = angle;
     imubased_js.velocity[BUCKET] = msg->angular_velocity.y;
 }
 
 void ac58_js_callback(const sensor_msgs::JointState::ConstPtr& msg){
     for(int i=0;i < msg->name.size();i++){
-        if((msg->name[i])=="swing_joint"){
+        if((msg->name[i])=="swint_joint"){
             imubased_js.position[SWING] = msg->position[i];
             imubased_js.velocity[SWING] = msg->velocity[i];
         }

@@ -30,7 +30,7 @@
             <param name="offset_pitch_angle" value="0.015"/>
             <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/>
         </node>
-        <node name="imubased_js_publisehr" pkg="zx120_bringup" type="imubased_js_publisher">
+        <node name="imubased_js_publisehr" pkg="zx120_bringup" type="imubased_js_publisher" output="screen">
             <!-- <rosparam command="load" file="$(find g2_ros)/config/g2_sensors.yaml"/>
             <param name="g2_can_id" value="101"/>
             <param name="frame_id" value="bucket_link"/>
