@@ -30,7 +30,7 @@ OPERA対応油圧ショベルzx120の土木研究所公開ROSパッケージ群
 - zx120の実機を動作させる際に必要なノード群を一括起動するためのlaunch用のサブパッケージ
 
 ### zx120_control:
-- (ros_control)[http://wiki.ros.org/ros_control]の枠組みに倣い、作業機（=swing_joint, boom_joint, arm_joint, bucket_joint, bucket_end_joint）の部分をjoint_state_controller(type: joint_state_controller/JointStateController), upper_arm_contoller(position_controllers/JointTrajectoryController)という名称で実装したサブパッケージ
+- [ros_control](http://wiki.ros.org/ros_control)の枠組みに倣い、作業機（=swing_joint, boom_joint, arm_joint, bucket_joint, bucket_end_joint）の部分をjoint_state_controller(type: joint_state_controller/JointStateController), upper_arm_contoller(position_controllers/JointTrajectoryController)という名称で実装したサブパッケージ
 
 ### zx120_description:
 - zx120用のロボットモデルファイル(urdf, xacro含む)群
