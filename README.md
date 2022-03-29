@@ -20,24 +20,34 @@ OPERA対応油圧ショベルzx120の土木研究所公開ROSパッケージ群
   ```bash
   $ cd ~/catkin_ws/src
   $ git clone https://github.com/pwri-opera/zx120_ros.git
+  $ git clone https://github.com/ros-industrial/industrial_core.git
   $ catkin build
   $ source ../devel/setup.bash
   ```
 
 ## 含有するサブパッケージ
 ### zx120_bringup:
+- zx120の実機を動作させる際に必要なノード群を一括起動するためのlaunch用のサブパッケージ
 
 ### zx120_control:
+- (ros_control)[http://wiki.ros.org/ros_control]の枠組みに倣い、作業機（=swing_joint, boom_joint, arm_joint, bucket_joint, bucket_end_joint）の部分をjoint_state_controller(type: joint_state_controller/JointStateController), upper_arm_contoller(position_controllers/JointTrajectoryController)という名称で実装したサブパッケージ
 
 ### zx120_description:
+- zx120用のロボットモデルファイル(urdf, xacro含む)群
 
 ### zx120_gazebo:
+- zx120をgazeboシミュレータ上で動作させるのに必要なノード群を一括起動するためのlaunch用のサブパッケージ
 
 ### zx120_ikfast_plugin:
+- MoveItの逆運動学計算を高速化するためのpluginライブラリ
 
 ### zx120_moveit_config:
+- zx120の作業機（=swing, boom, arm, bucketの4軸）のモーション制御のためのライブラリ
+- [MoveIt!](https://moveit.ros.org/)に準拠しMoveIt Setup Assistantを用いて作成
+- [industrial_core](http://wiki.ros.org/industrial_core)のindustrial_trajectory_filterを利用し、手先軌道の動作指令について平滑化をしている
 
 ### zx120_unity:
+- OPERAのUnityシミュレータと連携するために必要なノード群を一括起動するためのlaunch用のサブパッケージ
 
 ## 各ROSノード群の起動方法
 - 実機動作に必要なROSノード群の起動方法
