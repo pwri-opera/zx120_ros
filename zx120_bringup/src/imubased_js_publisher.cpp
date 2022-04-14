@@ -36,14 +36,22 @@ void normalize_PI(double& theta){
     }
 }
 
-double get_bucket_angle(double imu_angle){
-    double link1(325), link2(362), link3(460), link4(505);
-    double th_bk0(0.070058), th_bk3(1.865827);
-    double vertial_link5_between_link1_link4 = sqrt(link1 * link1 + link4 * link4 - 2 * link1 * link4 * cos(imu_angle));    
-    double th_bk2_1 = acos((link1 * link1 + vertial_link5_between_link1_link4 * vertial_link5_between_link1_link4 - link4 * link4) / (2 * link1 * vertial_link5_between_link1_link4));
-    double th_bk2_2 = acos((link2 * link2 + vertial_link5_between_link1_link4 * vertial_link5_between_link1_link4 - link3 * link3) / (2 * link2 * vertial_link5_between_link1_link4));
+double get_bucket_angle(double angle){
+    const double l1(505), l2(460), l3(325), l4(362);
+    const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     
-    return th_bk0 + th_bk2_1 + th_bk2_2 + th_bk3 - M_PI;
+    double th_a = angle - th_os_imu_buck - th_os_arm;
+
+    double lx = sqrt(l3*l3 + l1*l1 - 2*l1*l3*cos(th_a));
+
+    double alpha = acos((l3-l1*cos(th_a))/lx);
+    double beta = acos((l3*l3 + l1*l1 - l2*l2 + l4*l4 - 2*l1*l3*cos(th_a))/(2*l4*lx));
+
+    double th_buck =  - M_PI + alpha + beta + th_os_buck;
+
+    normalize_PI(th_buck);
+    //ROS_INFO("input_angle=%f, /_BAD=%f, lx=%f, alpha=%f, beta=%f, output_angle=%f", angle, th_a, lx, alpha, beta, th_buck);
+    return th_buck;
 }
 
 void swing_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
@@ -109,14 +117,16 @@ void bucket_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
     tf2::convert(q_imu[ARM], quat0);
 
     angle = tf2::angleShortestPath(quat0, quat1);
+    normalize_PI(angle);
 
-    imubased_js.position[BUCKET] = angle;
+    imubased_js.position[BUCKET] = get_bucket_angle(angle);
     imubased_js.velocity[BUCKET] = msg->angular_velocity.y;
 }
 
 void ac58_js_callback(const sensor_msgs::JointState::ConstPtr& msg){
     for(int i=0;i < msg->name.size();i++){
-        if((msg->name[i])=="swint_joint"){
+        if((msg->name[i])=="rotator_joint"){
+        //if((msg->name[i])=="swint_joint"){
             imubased_js.position[SWING] = msg->position[i];
             imubased_js.velocity[SWING] = msg->velocity[i];
         }
