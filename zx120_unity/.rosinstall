@@ -1,0 +1,3 @@
+# main repos
+- git: {local-name: opera_tools, uri: 'git@github.com:pwri-opera/opera_tools.git', version: main}
+# ...
