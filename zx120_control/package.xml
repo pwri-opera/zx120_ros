@@ -25,7 +25,8 @@
   <exec_depend>hardware_interface</exec_depend>
   <exec_depend>transmission_interface</exec_depend>
   <exec_depend>controller_manager</exec_depend>
-
+  <depend>ros-melodic-joint-trajectory-controller</depend>
+  
   <export>
   </export>
 </package>
