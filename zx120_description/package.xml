@@ -27,8 +27,8 @@
 	<exec_depend>rqt_gui</exec_depend>
 	<exec_depend>rviz</exec_depend>
 	<exec_depend>xacro</exec_depend>
-	<depend>ros-melodic-ros-control</depend>
-	<depend>ros-melodic-ros-controller</depend>
+	<depend>ros_control</depend>
+	<depend>ros_controller</depend>
 	
 	<exec_depend>roboticsgroup_upatras_gazebo_plugins</exec_depend>
 
