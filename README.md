@@ -16,11 +16,15 @@ OPERA対応油圧ショベルzx120の土木研究所公開ROSパッケージ群
   $ catkin build
   ```
 
-- パッケージのビルドと自分のワークスペースをインストール環境上にOverlayする
+- 依存パッケージ群をインストールした上でパッケージのビルドと自分のワークスペースをインストール環境上にOverlayする  
+  [vcstoolに関する参考サイト](https://qiita.com/strv/items/dbde72e20a8efe62ef95)
   ```bash
   $ cd ~/catkin_ws/src
   $ git clone https://github.com/pwri-opera/zx120_ros.git
-  $ git clone https://github.com/ros-industrial/industrial_core.git
+  $ sudo apt install python-vcstool python-rosdep python-catkin-tools
+  $ git clone https://github.com/strv/vcstool-utils.git
+  $ rosdep install --from-paths ~/catkin_ws/src --ignore-src -r -y
+  $ ./vcstool-utils/import_all.sh -s .rosinstall ~/catkin_ws/src
   $ catkin build
   $ source ../devel/setup.bash
   ```
