@@ -125,8 +125,8 @@ void bucket_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
 
 void ac58_js_callback(const sensor_msgs::JointState::ConstPtr& msg){
     for(int i=0;i < msg->name.size();i++){
-        if((msg->name[i])=="rotator_joint"){
-        //if((msg->name[i])=="swint_joint"){
+        //if((msg->name[i])=="rotator_joint"){
+        if((msg->name[i])=="swing_joint"){
             imubased_js.position[SWING] = msg->position[i];
             imubased_js.velocity[SWING] = msg->velocity[i];
         }
