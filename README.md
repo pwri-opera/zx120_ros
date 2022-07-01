@@ -21,6 +21,7 @@ OPERA対応油圧ショベルzx120の土木研究所公開ROSパッケージ群
   ```bash
   $ cd ~/catkin_ws/src
   $ git clone https://github.com/pwri-opera/zx120_ros.git
+  $ sudo apt update
   $ sudo apt install python-vcstool python-rosdep python-catkin-tools
   $ git clone https://github.com/strv/vcstool-utils.git
   $ rosdep install --from-paths ~/catkin_ws/src --ignore-src -r -y
