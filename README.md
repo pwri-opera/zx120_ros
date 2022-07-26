@@ -21,6 +21,7 @@ OPERA対応油圧ショベルzx120の土木研究所公開ROSパッケージ群
   ```bash
   $ cd ~/catkin_ws/src
   $ git clone https://github.com/pwri-opera/zx120_ros.git
+  $ sudo apt update
   $ sudo apt install python-vcstool python-rosdep python-catkin-tools
   $ git clone https://github.com/strv/vcstool-utils.git
   $ rosdep install --from-paths ~/catkin_ws/src --ignore-src -r -y
@@ -72,4 +73,4 @@ zx120のハードウェアのシステム構成を以下のブロック図へ示
 ![correct_rosgraph](https://user-images.githubusercontent.com/24404939/160327979-1281697d-6322-4fd6-82ed-0c5332fea4eb.png)
 
 ### roslaunch zx120_bringup zx120_vehicle.launch実行時のノード/トピックパイプライン（rqt_graph）
-（UNDER CONSTRUCTION）
+![vehicle_rosgraph](https://user-images.githubusercontent.com/24404939/174955379-0f71fb7e-bdaa-4de5-9f13-9d2232c76015.png)
