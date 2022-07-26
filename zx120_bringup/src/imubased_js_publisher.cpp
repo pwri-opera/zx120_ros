@@ -18,6 +18,7 @@ const int NUM_AXIS=4;
 sensor_msgs::JointState imubased_js;
 geometry_msgs::Quaternion q_imu[NUM_AXIS];
 double base_link_pitch, base_link_roll;
+double body_link_pitch;
 
 void GetRPY(const geometry_msgs::Quaternion &q, double &roll, double &pitch, double &yaw)
 {
@@ -75,18 +76,23 @@ void swing_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
     double yaw;
     GetRPY(tmp, base_link_roll, base_link_pitch, yaw);
     base_link_roll *= -1.0; //符号反転
+
+    body_link_pitch = - atan2(msg->linear_acceleration.x, msg->linear_acceleration.z);
 }
 
 void boom_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
     double angle = 0.0;
-    tf2::Quaternion quat0, quat1;
+    // tf2::Quaternion quat0, quat1;
+
+    //q_imu[BOOM] = msg->orientation;
+
+    // tf2::convert(q_imu[BOOM], quat1);
+    // tf2::convert(q_imu[SWING], quat0);
+
+    // angle = -tf2::angleShortestPath(quat0, quat1);
 
     q_imu[BOOM] = msg->orientation;
-
-    tf2::convert(q_imu[BOOM], quat1);
-    tf2::convert(q_imu[SWING], quat0);
-
-    angle = -tf2::angleShortestPath(quat0, quat1);
+    angle = - atan2(msg->linear_acceleration.x, msg->linear_acceleration.z) + body_link_pitch;
 
     imubased_js.position[BOOM] = angle;    
     imubased_js.velocity[BOOM] = msg->angular_velocity.y;
