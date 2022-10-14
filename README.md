@@ -55,7 +55,8 @@ OPERA対応油圧ショベルzx120の土木研究所公開ROSパッケージ群
 - OPERAのUnityシミュレータと連携するために必要なノード群を一括起動するためのlaunch用のサブパッケージ
 
 ## 各ROSノード群の起動方法
-- 実機動作に必要なROSノード群の起動方法
+- 実機動作に必要なROSノード群の起動方法  
+注）実機特有の非公開パッケージが含まれるため、実機以外の環境ではlaunchに失敗します
   ```bash
   $ roslaunch zx120_bringup zx120_vehicle.launch
   ```
@@ -72,5 +73,6 @@ zx120のハードウェアのシステム構成を以下のブロック図へ示
 ### roslaunch zx120_unity zx120_standy.launch実行時のノード/トピックパイプライン（rqt_graph）
 ![correct_rosgraph](https://user-images.githubusercontent.com/24404939/160327979-1281697d-6322-4fd6-82ed-0c5332fea4eb.png)
 
-### roslaunch zx120_bringup zx120_vehicle.launch実行時のノード/トピックパイプライン（rqt_graph）
+### roslaunch zx120_bringup zx120_vehicle.launch実行時のノード/トピックパイプライン（rqt_graph）  
+注）zx120実機上でのみ実行可能です
 ![vehicle_rosgraph](https://user-images.githubusercontent.com/24404939/174955379-0f71fb7e-bdaa-4de5-9f13-9d2232c76015.png)
