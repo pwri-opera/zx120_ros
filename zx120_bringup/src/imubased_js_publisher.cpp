@@ -100,16 +100,34 @@ void boom_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
 
 void arm_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
     double angle = 0.0;
-    tf2::Quaternion quat0, quat1;
+    double angle_x, angle_y, angle_z;
 
-     q_imu[ARM] = msg->orientation;
+    tf2::Quaternion quat0, quat1, quat_diff;
+
+    // quat_base.setRPY(0,0,0);
+    q_imu[ARM] = msg->orientation;
 
     tf2::convert(q_imu[ARM], quat1);
     tf2::convert(q_imu[BOOM], quat0);
 
-    angle = tf2::angleShortestPath(quat0, quat1);
+    quat_diff = quat1.inverse()*quat0;
+    quat_diff.normalize();
 
-    imubased_js.position[ARM] = angle;
+    // tf2::Matrix3x3 m(quat_diff);
+    // m.getEulerYPR(angle_x, angle_y, angle_z);
+    // angle_y = quat_diff.getAngleShortestPath();
+ 
+    // angle_y = tf2Angle(quat0.getAxis(), quat1.getAxis());
+    
+    angle_y = quat_diff.getAngleShortestPath();
+    // angle1 = quat1.angleShortestPath(quat_base);
+    // angle  = angle1 - angle0;
+
+    std::cout << angle_x << "\t" << angle_y << "\t" << angle_z << std::endl;
+
+    // angle = tf2::angleShortestPath(quat0, quat1);
+
+    imubased_js.position[ARM] = angle_y;
     imubased_js.velocity[ARM] = msg->angular_velocity.y;
 }
 
