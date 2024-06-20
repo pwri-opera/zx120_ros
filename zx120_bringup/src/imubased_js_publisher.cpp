@@ -123,7 +123,7 @@ void arm_g2_callback(const sensor_msgs::Imu::ConstPtr& msg){
     // angle1 = quat1.angleShortestPath(quat_base);
     // angle  = angle1 - angle0;
 
-    std::cout << angle_x << "\t" << angle_y << "\t" << angle_z << std::endl;
+    // std::cout << angle_x << "\t" << angle_y << "\t" << angle_z << std::endl;
 
     // angle = tf2::angleShortestPath(quat0, quat1);
 

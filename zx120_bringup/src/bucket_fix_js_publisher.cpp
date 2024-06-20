@@ -18,19 +18,10 @@ sensor_msgs::Imu bucket_imu_;
 
 bool is_swing_imu_;
 bool is_bucket_imu_;
-
+bool is_ac58_js_;
 
 sensor_msgs::JointState fix_js_;
 
-// geometry_msgs::Quaternion q_imu[NUM_AXIS];
-// double base_link_pitch, base_link_roll;
-// double body_link_pitch;
-
-// void GetRPY(const geometry_msgs::Quaternion &q, double &roll, double &pitch, double &yaw)
-// {
-//     tf::Quaternion quat(q.x, q.y, q.z, q.w);
-//     tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
-// }
 
 double normalize_PI(double theta)
 {
@@ -56,7 +47,7 @@ void swing_g2_callback (const sensor_msgs::Imu::ConstPtr& msg)
 
 void bucket_g2_callback (const sensor_msgs::Imu::ConstPtr& msg)
 {
-    is_bucket_imu_ = false;
+    is_bucket_imu_ = true;
     bucket_imu_ = *msg;
 }
 
@@ -66,22 +57,25 @@ void Get_bucket_angle ()
 
     double angle = 0.0;
     double roll, pitch, yaw;
-    tf2::Quaternion quat_swing, quat_bucket, quat_bucket_base_swing;
+    double s_roll, s_pitch, s_yaw;
+    tf2::Quaternion quat_swing, quat_swing_yaw, quat_bucket, quat_bucket_base_swing;
     const double l1(505), l2(460), l3(325), l4(362);
     // const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
     
-    if (is_bucket_imu_ != true) 
-    {
-        return;
-    }
-    if (is_swing_imu_ != true)
+    if (is_bucket_imu_ != true || is_swing_imu_ != true || is_ac58_js_ != true) 
     {
         return;
     }
 
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
+
+    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+
+    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない 
+    quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
+    quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
 
     quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
     tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
@@ -99,12 +93,15 @@ void Get_bucket_angle ()
 
     fix_js_.position[BUCKET] = th_buck;
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
+
+    // ROS_INFO("input_angle=%f, /_BAD=%f, lx=%f, alpha=%f, beta=%f, output_angle=%f", angle, th_a, lx, alpha, beta, th_buck);
 }
 
 
 
 void AC58_js_callback (const sensor_msgs::JointState::ConstPtr& msg)
 {
+    is_ac58_js_ = true;
     fix_js_.header.stamp = msg->header.stamp;
 
     for (int i=0; i<msg->name.size(); i++) 
@@ -140,7 +137,8 @@ int main(int argc, char **argv)
     fix_js_.effort.resize(NUM_AXIS);
 
     is_swing_imu_   = false;
-    is_bucket_imu_  = false; 
+    is_bucket_imu_  = false;
+    is_ac58_js_     = false;
 
     ros::Publisher  fix_js_pub = nh.advertise<sensor_msgs::JointState> ("ac58_fix_bucket_joint_publisher/joint_states", 10);
     ros::Subscriber swing_imu_sub = nh.subscribe ("swing/g2_imu", 5, &swing_g2_callback);
