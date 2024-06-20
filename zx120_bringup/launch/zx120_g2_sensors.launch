@@ -37,6 +37,7 @@
             <param name="offset_pitch_angle" value="0.015"/>
             <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/> -->
         </node>
+        <node name="bucket_fix_js_publisher" pkg="zx120_bringup" type="bucket_fix_js_publisher" output="screen"/>
         <!--remap from="$(arg robot_name)/swing/received_messages" to="$(arg robot_name)/received_messages"/-->
     </group>
 </launch>

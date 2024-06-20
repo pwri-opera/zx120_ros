@@ -61,7 +61,8 @@ void Get_bucket_angle ()
     tf2::Quaternion quat_swing, quat_swing_yaw, quat_bucket, quat_bucket_base_swing;
     const double l1(505), l2(460), l3(325), l4(362);
     // const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
-    const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
+    // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
+    const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.25);
     
     if (is_bucket_imu_ != true || is_swing_imu_ != true || is_ac58_js_ != true) 
     {
