@@ -93,7 +93,7 @@ void Get_bucket_angle ()
     //     pitch = 2.0 * acos( quat_bucket_base_swing.getW() );
     // } 
     
-    tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
+    tf2::Matrix3x3(quat_bucket).getEulerYPR	(roll, pitch, yaw);
     // std::cout << quat_bucket.getAxis()[0] << "," << quat_bucket.getAxis()[1] << "," << quat_bucket.getAxis()[2] << std::endl;
     // std::cout << roll << "," << pitch << "," << yaw << std::endl; 
 
@@ -109,7 +109,8 @@ void Get_bucket_angle ()
     th_buck = normalize_PI(th_buck);
 
     // fix_js_.position[BUCKET] = th_buck;
-    fix_js_.position[BUCKET] = - pitch - fix_js_.position[BOOM];
+    // fix_js_.position[BUCKET] = - pitch - fix_js_.position[BOOM];
+    fix_js_.position[BUCKET] = -pitch;
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // ROS_INFO("input_angle=%f, /_BAD=%f, lx=%f, alpha=%f, beta=%f, output_angle=%f", angle, th_a, lx, alpha, beta, th_buck);
