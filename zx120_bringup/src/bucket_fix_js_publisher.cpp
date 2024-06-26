@@ -109,7 +109,7 @@ void Get_bucket_angle ()
     th_buck = normalize_PI(th_buck);
 
     // fix_js_.position[BUCKET] = th_buck;
-    fix_js_.position[BUCKET] = th_buck;
+    fix_js_.position[BUCKET] = - pitch - fix_js_.position[BOOM];
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // ROS_INFO("input_angle=%f, /_BAD=%f, lx=%f, alpha=%f, beta=%f, output_angle=%f", angle, th_a, lx, alpha, beta, th_buck);
