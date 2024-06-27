@@ -56,13 +56,14 @@ void Get_bucket_angle ()
 {
 
     double angle = 0.0;
+    double theta = 0.0;
     double roll, pitch, yaw;
     double s_roll, s_pitch, s_yaw;
     tf2::Quaternion quat_swing, quat_swing_yaw, quat_bucket, quat_bucket_base_swing;
     const double l1(505), l2(460), l3(325), l4(362);
-    // const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
+    const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
-    const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
+    // const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
     
     if (is_bucket_imu_ != true || is_swing_imu_ != true || is_ac58_js_ != true) 
     {
@@ -93,11 +94,23 @@ void Get_bucket_angle ()
     //     pitch = 2.0 * acos( quat_bucket_base_swing.getW() );
     // } 
     
-    tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
+    tf2::Matrix3x3 mat_rot(quat_bucket);
+    mat_rot.getRPY(roll, pitch, yaw);
+    // theta = atan2(mat_rot.getRow(0)[2], mat_rot.getRow(0)[0]);
     // std::cout << quat_bucket.getAxis()[0] << "," << quat_bucket.getAxis()[1] << "," << quat_bucket.getAxis()[2] << std::endl;
     // std::cout << roll << "," << pitch << "," << yaw << std::endl; 
 
-    angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+    if (mat_rot.getRow(0).x() < 0.0)
+    {
+        theta = M_PI-asin(mat_rot.getRow(2).x());
+        theta = normalize_PI(theta);
+    }
+    else 
+    {
+        theta = asin(mat_rot.getRow(2).x());
+    }
+
+    angle = theta - fix_js_.position[BOOM] + fix_js_.position[ARM];
     angle = normalize_PI(angle);
 
     double th_a = angle - th_os_imu_buck - th_os_arm;
@@ -108,8 +121,10 @@ void Get_bucket_angle ()
 
     th_buck = normalize_PI(th_buck);
 
-    // fix_js_.position[BUCKET] = th_buck;
-    fix_js_.position[BUCKET] = - pitch - fix_js_.position[BOOM];
+    fix_js_.position[BUCKET] = th_buck;
+    // fix_js_.position[BUCKET] = angle;
+    // fix_js_.position[BUCKET] = pitch;
+    // fix_js_.position[BUCKET] = mat_rot.getRow(2).x();
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // ROS_INFO("input_angle=%f, /_BAD=%f, lx=%f, alpha=%f, beta=%f, output_angle=%f", angle, th_a, lx, alpha, beta, th_buck);
