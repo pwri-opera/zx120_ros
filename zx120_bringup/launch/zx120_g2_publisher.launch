@@ -9,6 +9,17 @@
             <param name="offset_pitch_angle" value="0.015"/>
             <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/> -->
         <!-- </node> -->
+
+        <node name="imu_filter_madgwick" pkg="imu_filter_madgwick" type="imu_filter_node" output="screen">
+            <remap from="imu/data_raw" to="bucket/g2_imu_only_pitch/raw"/>
+            <remap from="imu/data" to="bucket/g2_imu_only_pitch"/>
+            <param name="use_mag" value="false"/>
+            <param name="publish_tf" value="false"/>
+            <param name="gain"  value="0.7"/>
+
+        </node>
+
+        <node name="bucket_pitch_acc_angvel" pkg="zx120_bringup" type="bucket_pitch_acc_angvel.py" output="screen"/>
         <node name="bucket_fix_js_publisher" pkg="zx120_bringup" type="bucket_fix_js_publisher" output="screen"/>
         <!--remap from="$(arg robot_name)/swing/received_messages" to="$(arg robot_name)/received_messages"/-->
 

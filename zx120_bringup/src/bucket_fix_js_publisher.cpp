@@ -60,6 +60,7 @@ void Get_bucket_angle ()
     double roll, pitch, yaw;
     double s_roll, s_pitch, s_yaw;
     tf2::Quaternion quat_swing, quat_swing_yaw, quat_bucket, quat_bucket_base_swing;
+    tf2::Vector3 quat_base_y(0, 1, 0);
     const double l1(505), l2(460), l3(325), l4(362);
     const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
@@ -78,11 +79,26 @@ void Get_bucket_angle ()
     quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない 
     quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
-
     quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+
+
+
+    theta = 2.0 * atan2 (sqrt(pow(quat_bucket.x(),2) + pow(quat_bucket.y(),2) + pow(quat_bucket.z(),2)), quat_bucket.w() );
+    tf2::Vector3 quat_axis(quat_bucket.x(), quat_bucket.y(), quat_bucket.z());
+
+    if ( quat_axis.dot(quat_base_y) < 0 )
+    {
+        theta = -theta;
+    }    
+    theta = normalize_PI(theta);
+    // theta = 
+
+    // theta = 2.0 * acos (quat_bucket.w());
+
+
     // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
 
-    tf2::Quaternion quat_base(0,0,0);
+    // tf2::Quaternion quat_base(0,0,0);
     // pitch = quat_bucket.angleShortestPath (quat_base);
 
     // if (quat_bucket_base_swing.getW() < 0)
@@ -94,23 +110,25 @@ void Get_bucket_angle ()
     //     pitch = 2.0 * acos( quat_bucket_base_swing.getW() );
     // } 
     
-    tf2::Matrix3x3 mat_rot(quat_bucket);
-    mat_rot.getRPY(roll, pitch, yaw);
+    // tf2::Matrix3x3 mat_rot(quat_bucket);
+    // mat_rot.getRPY(roll, pitch, yaw);
     // theta = atan2(mat_rot.getRow(0)[2], mat_rot.getRow(0)[0]);
     // std::cout << quat_bucket.getAxis()[0] << "," << quat_bucket.getAxis()[1] << "," << quat_bucket.getAxis()[2] << std::endl;
     // std::cout << roll << "," << pitch << "," << yaw << std::endl; 
 
-    if (mat_rot.getRow(0).x() < 0.0)
-    {
-        theta = M_PI-asin(mat_rot.getRow(2).x());
-        theta = normalize_PI(theta);
-    }
-    else 
-    {
-        theta = asin(mat_rot.getRow(2).x());
-    }
+    // if (mat_rot.getRow(0).x() < 0.0)
+    // {
+    //     theta = M_PI-asin(mat_rot.getRow(2).x());
+    //     theta = normalize_PI(theta);
+    // }
+    // else 
+    // {
+    //     theta = asin(mat_rot.getRow(2).x());
+    // }
 
-    angle = theta - fix_js_.position[BOOM] + fix_js_.position[ARM];
+
+    // angle = theta - fix_js_.position[BOOM] + fix_js_.position[ARM];
+    // angle = theta - fix_js_.position[BOOM] - fix_js_.position[ARM];
     angle = normalize_PI(angle);
 
     double th_a = angle - th_os_imu_buck - th_os_arm;
@@ -121,9 +139,9 @@ void Get_bucket_angle ()
 
     th_buck = normalize_PI(th_buck);
 
-    fix_js_.position[BUCKET] = th_buck;
-    // fix_js_.position[BUCKET] = angle;
-    // fix_js_.position[BUCKET] = pitch;
+    // fix_js_.position[BUCKET] = th_buck;
+    fix_js_.position[BUCKET] = theta - fix_js_.position[ARM];
+    // fix_js_.position[BUCKET] = sqrt(pow(quat_bucket.x(),2) + pow(quat_bucket.y(),2) + pow(quat_bucket.z(),2) + pow(quat_bucket.w(),2));
     // fix_js_.position[BUCKET] = mat_rot.getRow(2).x();
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
@@ -175,7 +193,7 @@ int main(int argc, char **argv)
 
     ros::Publisher  fix_js_pub = nh.advertise<sensor_msgs::JointState> ("ac58_fix_bucket_joint_publisher/joint_states", 10);
     ros::Subscriber swing_imu_sub = nh.subscribe ("swing/g2_imu", 5, &swing_g2_callback);
-    ros::Subscriber bucket_imu_sub = nh.subscribe ("bucket/g2_imu", 5, &bucket_g2_callback);
+    ros::Subscriber bucket_imu_sub = nh.subscribe ("bucket/g2_imu_only_pitch", 5, &bucket_g2_callback);
 
     ros::Subscriber ac58_js_sub = nh.subscribe ("ac58_joint_publisher/joint_states", 5, &AC58_js_callback);
     ros::Rate loop(50);
