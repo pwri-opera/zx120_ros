@@ -82,6 +82,8 @@ void Get_bucket_angle ()
     quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
 
 
+    
+
 
     theta = 2.0 * atan2 (sqrt(pow(quat_bucket.x(),2) + pow(quat_bucket.y(),2) + pow(quat_bucket.z(),2)), quat_bucket.w() );
     tf2::Vector3 quat_axis(quat_bucket.x(), quat_bucket.y(), quat_bucket.z());
@@ -193,7 +195,7 @@ int main(int argc, char **argv)
 
     ros::Publisher  fix_js_pub = nh.advertise<sensor_msgs::JointState> ("ac58_fix_bucket_joint_publisher/joint_states", 10);
     ros::Subscriber swing_imu_sub = nh.subscribe ("swing/g2_imu", 5, &swing_g2_callback);
-    ros::Subscriber bucket_imu_sub = nh.subscribe ("bucket/g2_imu_only_pitch", 5, &bucket_g2_callback);
+    ros::Subscriber bucket_imu_sub = nh.subscribe ("bucket/g2_imu", 5, &bucket_g2_callback);
 
     ros::Subscriber ac58_js_sub = nh.subscribe ("ac58_joint_publisher/joint_states", 5, &AC58_js_callback);
     ros::Rate loop(50);
