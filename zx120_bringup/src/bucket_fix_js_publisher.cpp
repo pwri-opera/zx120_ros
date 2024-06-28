@@ -85,6 +85,12 @@ void Get_bucket_angle ()
     quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
     tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
 
+    roll 軸反転に関する対処
+    if ( roll < -M_PI/2.0)
+    {
+        pitch = M_PI - pitch; 
+    }
+
     angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
     angle = normalize_PI(angle);
 
