@@ -2,6 +2,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Float64.h>
 #include <tf2/convert.h>
 // #include <tf/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -21,6 +22,9 @@ bool is_bucket_imu_;
 bool is_ac58_js_;
 
 sensor_msgs::JointState fix_js_;
+
+// Debug
+std_msgs::Float64 angle_msg_;
 
 
 double normalize_PI(double theta)
@@ -62,7 +66,7 @@ void Get_bucket_angle ()
     const double l1(505), l2(460), l3(325), l4(362);
     // const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
-    const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.25);
+    const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
     
     if (is_bucket_imu_ != true || is_swing_imu_ != true || is_ac58_js_ != true) 
     {
@@ -95,7 +99,20 @@ void Get_bucket_angle ()
     fix_js_.position[BUCKET] = th_buck;
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
-    // ROS_INFO("input_angle=%f, /_BAD=%f, lx=%f, alpha=%f, beta=%f, output_angle=%f", angle, th_a, lx, alpha, beta, th_buck);
+    // Debug
+    angle_msg_.data = pitch;
+    ROS_INFO ("%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+    bucket_imu_.header.stamp.toSec(),
+    roll,
+    pitch,
+    yaw,
+    quat_bucket_base_swing.x(),
+    quat_bucket_base_swing.y(),
+    quat_bucket_base_swing.z(),
+    quat_bucket_base_swing.w(),
+    angle,
+    th_buck
+    );
 }
 
 
@@ -146,14 +163,23 @@ int main(int argc, char **argv)
     ros::Subscriber bucket_imu_sub = nh.subscribe ("bucket/g2_imu", 5, &bucket_g2_callback);
 
     ros::Subscriber ac58_js_sub = nh.subscribe ("ac58_joint_publisher/joint_states", 5, &AC58_js_callback);
+
+    // Debug
+    ros::Publisher  p_angle_pub = nh.advertise<std_msgs::Float64> ("g_angle", 10);
+
+
     ros::Rate loop(50);
+
+    ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
 
     while(ros::ok())
     {
         fix_js_.header.stamp = ros::Time::now();
         Get_bucket_angle();
         fix_js_.name = {"swing_joint", "boom_joint", "arm_joint", "bucket_joint"};
-        fix_js_pub.publish(fix_js_);
+        fix_js_pub.publish (fix_js_);
+
+        p_angle_pub.publish (angle_msg_); 
         loop.sleep();
         ros::spinOnce();
     }
