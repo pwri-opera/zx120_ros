@@ -23,6 +23,9 @@ bool is_ac58_js_;
 
 sensor_msgs::JointState fix_js_;
 
+double boom_angle_ = 0.0;
+double arm_angle_ = 0.0;
+
 // Debug
 std_msgs::Float64 angle_msg_;
 
@@ -107,19 +110,26 @@ void Get_bucket_angle ()
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // Debug
-    angle_msg_.data = pitch;
-    ROS_INFO ("%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
-    bucket_imu_.header.stamp.toSec(),
-    roll,
-    pitch,
-    yaw,
-    quat_bucket_base_swing.x(),
-    quat_bucket_base_swing.y(),
-    quat_bucket_base_swing.z(),
-    quat_bucket_base_swing.w(),
-    angle,
-    th_buck
-    );
+    // angle_msg_.data = pitch;
+    // ROS_INFO ("%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
+    // bucket_imu_.header.stamp.toSec(),
+    // roll,
+    // pitch,
+    // yaw,
+    // quat_bucket_base_swing.x(),
+    // quat_bucket_base_swing.y(),
+    // quat_bucket_base_swing.z(),
+    // quat_bucket_base_swing.w(),
+    // angle,
+    // th_buck
+    // );
+
+    std::cout << s_roll  << ","
+              << s_pitch << ","
+              << s_yaw   << ","
+              << boom_angle_ << ","
+              << arm_angle_ << ","
+              << std::endl;
 }
 
 
@@ -140,11 +150,13 @@ void AC58_js_callback (const sensor_msgs::JointState::ConstPtr& msg)
         {
             fix_js_.position[BOOM] = msg->position[i];
             fix_js_.velocity[BOOM] = msg->velocity[i];
+            boom_angle_ = msg->position[i];
         }
         else if (msg->name[i] == "arm_joint")
         {
             fix_js_.position[ARM] = msg->position[i];
-            fix_js_.velocity[ARM] = msg->velocity[i]; 
+            fix_js_.velocity[ARM] = msg->velocity[i];
+            arm_angle_ = msg->position[i];
         }
     }
 }
@@ -173,11 +185,11 @@ int main(int argc, char **argv)
 
     // Debug
     ros::Publisher  p_angle_pub = nh.advertise<std_msgs::Float64> ("g_angle", 10);
-
+    
+    // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
+    std::cout << "swing_roll, swing_pitch, swing_yaw, boom_ang, arm_ang" << std::endl; 
 
     ros::Rate loop(50);
-
-    ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
 
     while(ros::ok())
     {
