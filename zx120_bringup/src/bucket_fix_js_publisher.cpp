@@ -28,7 +28,7 @@ double arm_angle_ = 0.0;
 
 // Debug
 std_msgs::Float64 angle_msg_;
-
+sensor_msgs::Imu quat_swing_ref_;
 
 double normalize_PI(double theta)
 {
@@ -79,9 +79,13 @@ void Get_bucket_angle ()
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
 
-    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+    tf2::Quaternion quat_yaw180;
+    // quat_yaw180.setRPY (0, 0, M_PI);
+    // quat_swing = quat_yaw180 * quat_swing;
 
-    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない 
+    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
+
     quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
 
@@ -130,6 +134,11 @@ void Get_bucket_angle ()
               << boom_angle_ << ","
               << arm_angle_ << ","
               << std::endl;
+
+    geometry_msgs::Quaternion quat_swing_ref_msg;
+    quat_swing_ref_msg = tf2::toMsg (quat_swing);
+    quat_swing_ref_ = swing_imu_;
+    quat_swing_ref_.orientation = quat_swing_ref_msg;
 }
 
 
@@ -178,13 +187,14 @@ int main(int argc, char **argv)
     is_ac58_js_     = false;
 
     ros::Publisher  fix_js_pub = nh.advertise<sensor_msgs::JointState> ("ac58_fix_bucket_joint_publisher/joint_states", 10);
-    ros::Subscriber swing_imu_sub = nh.subscribe ("swing/g2_imu", 5, &swing_g2_callback);
+    ros::Subscriber swing_imu_sub = nh.subscribe ("swing/g2_imu_localframe", 5, &swing_g2_callback);
     ros::Subscriber bucket_imu_sub = nh.subscribe ("bucket/g2_imu", 5, &bucket_g2_callback);
 
     ros::Subscriber ac58_js_sub = nh.subscribe ("ac58_joint_publisher/joint_states", 5, &AC58_js_callback);
 
     // Debug
     ros::Publisher  p_angle_pub = nh.advertise<std_msgs::Float64> ("g_angle", 10);
+    ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref", 10);
     
     // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
     std::cout << "swing_roll, swing_pitch, swing_yaw, boom_ang, arm_ang" << std::endl; 
@@ -198,7 +208,8 @@ int main(int argc, char **argv)
         fix_js_.name = {"swing_joint", "boom_joint", "arm_joint", "bucket_joint"};
         fix_js_pub.publish (fix_js_);
 
-        p_angle_pub.publish (angle_msg_); 
+        p_angle_pub.publish (angle_msg_);
+        swing_ref_pub.publish (quat_swing_ref_); 
         loop.sleep();
         ros::spinOnce();
     }
