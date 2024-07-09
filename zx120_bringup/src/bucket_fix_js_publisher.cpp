@@ -8,6 +8,10 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 
+#include <Eigen/Dense>
+
+
+
 const int SWING=0;
 const int BOOM=1;
 const int ARM=2;
@@ -76,42 +80,45 @@ void Get_bucket_angle ()
         return;
     }
 
+
+
+
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
 
+
+
+
+
     tf2::Quaternion quat_yaw180;
-    // quat_yaw180.setRPY (0, 0, M_PI);
-    // quat_swing = quat_yaw180 * quat_swing;
 
     tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
     quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
-
     quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
-
     quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
     tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
 
-    // roll 軸反転に関する対処
-    if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
-    {
-        pitch = M_PI - pitch; 
-    }
-    pitch = normalize_PI(pitch);
+    // // roll 軸反転に関する対処
+    // if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
+    // {
+    //     pitch = M_PI - pitch; 
+    // }
+    // pitch = normalize_PI(pitch);
 
-    angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
-    angle = normalize_PI(angle);
+    // angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+    // angle = normalize_PI(angle);
 
-    double th_a = angle - th_os_imu_buck - th_os_arm;
-    double lx = sqrt(l3*l3 + l1*l1 - 2*l1*l3*cos(th_a));
-    double alpha = acos((l3-l1*cos(th_a))/lx);
-    double beta = acos((l3*l3 + l1*l1 - l2*l2 + l4*l4 - 2*l1*l3*cos(th_a))/(2*l4*lx));
-    double th_buck =  - M_PI + alpha + beta + th_os_buck;
+    // double th_a = angle - th_os_imu_buck - th_os_arm;
+    // double lx = sqrt(l3*l3 + l1*l1 - 2*l1*l3*cos(th_a));
+    // double alpha = acos((l3-l1*cos(th_a))/lx);
+    // double beta = acos((l3*l3 + l1*l1 - l2*l2 + l4*l4 - 2*l1*l3*cos(th_a))/(2*l4*lx));
+    // double th_buck =  - M_PI + alpha + beta + th_os_buck;
 
-    th_buck = normalize_PI(th_buck);
+    // th_buck = normalize_PI(th_buck);
 
-    fix_js_.position[BUCKET] = th_buck;
-    fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
+    // fix_js_.position[BUCKET] = th_buck;
+    // fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // Debug
     // angle_msg_.data = pitch;
@@ -128,17 +135,17 @@ void Get_bucket_angle ()
     // th_buck
     // );
 
-    std::cout << s_roll  << ","
-              << s_pitch << ","
-              << s_yaw   << ","
-              << boom_angle_ << ","
-              << arm_angle_ << ","
-              << std::endl;
+    // std::cout << s_roll  << ","
+    //           << s_pitch << ","
+    //           << s_yaw   << ","
+    //           << boom_angle_ << ","
+    //           << arm_angle_ << ","
+    //           << std::endl;
 
-    geometry_msgs::Quaternion quat_swing_ref_msg;
-    quat_swing_ref_msg = tf2::toMsg (quat_swing);
-    quat_swing_ref_ = swing_imu_;
-    quat_swing_ref_.orientation = quat_swing_ref_msg;
+    // geometry_msgs::Quaternion quat_swing_ref_msg;
+    // quat_swing_ref_msg = tf2::toMsg (quat_swing);
+    // quat_swing_ref_ = swing_imu_;
+    // quat_swing_ref_.orientation = quat_swing_ref_msg;
 }
 
 
@@ -206,7 +213,7 @@ int main(int argc, char **argv)
         fix_js_.header.stamp = ros::Time::now();
         Get_bucket_angle();
         fix_js_.name = {"swing_joint", "boom_joint", "arm_joint", "bucket_joint"};
-        fix_js_pub.publish (fix_js_);
+        // fix_js_pub.publish (fix_js_);
 
         p_angle_pub.publish (angle_msg_);
         swing_ref_pub.publish (quat_swing_ref_); 
