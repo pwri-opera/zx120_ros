@@ -67,7 +67,7 @@ OPERA対応油圧ショベルzx120の土木研究所公開ROSパッケージ群
 
 ## ハードウェアシステム
 zx120のハードウェアのシステム構成を以下のブロック図へ示します
-![zx120_hardware_system](https://user-images.githubusercontent.com/24404939/159678741-7f0b94bb-2b62-4af4-be3b-30581bb08a46.jpg)
+![zx120_hardware_system](https://github.com/user-attachments/assets/7b126272-3c19-429d-b980-a2c4e61d32fb)
 
 ## ソフトウェアシステム
 ### roslaunch zx120_unity zx120_standy.launch実行時のノード/トピックパイプライン（rqt_graph）
