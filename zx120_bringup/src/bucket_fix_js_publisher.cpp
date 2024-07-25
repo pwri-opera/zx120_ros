@@ -71,6 +71,7 @@ void Get_bucket_angle ()
     // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
     // const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
     
+    
     //reconsidering params
     const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.100369904);
 
