@@ -83,19 +83,30 @@ void Get_bucket_angle ()
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
 
-    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+    // --------
+    // tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+    // quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
 
-    quat_swing_base.setRPY (M_PI, 0.0, 0.0);  // imu の取付に合わせる
-    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
-    quat_swing = quat_swing_base * quat_swing;
 
     // quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     // quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
 
-    // quat_bucket_base_swing = quat_swing_yaw.inverse() * quat_bucket;
-    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+    // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+    // // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
+    // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
+    
+    // --------
 
-    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
+    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
+
+    quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
+    quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
+
+    // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+    // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
+
+    tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
 
     // roll 軸反転に関する対処
     if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
@@ -104,7 +115,14 @@ void Get_bucket_angle ()
     }
     pitch = normalize_PI(pitch);
 
-    angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+    quat_bucket.setRPY(0, pitch, 0); // body の傾きを反映するため，いったん bucket pitch 角を quaternion にしてから計算
+    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+
+    double dummy_value, pitch2; // 以下計算用，それ以降値は使用しない
+    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(dummy_value, pitch2, dummy_value);
+
+
+    angle = pitch2 - fix_js_.position[BOOM] - fix_js_.position[ARM];
     angle = normalize_PI(angle);
 
     double th_a = angle - th_os_imu_buck;
@@ -119,7 +137,7 @@ void Get_bucket_angle ()
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // Debug
-    // angle_msg_.data = pitch;
+    angle_msg_.data = pitch;
     // ROS_INFO ("%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
     // bucket_imu_.header.stamp.toSec(),
     // roll,
@@ -144,6 +162,7 @@ void Get_bucket_angle ()
               << pitch << ","
               << yaw << ","
               << th_buck << ","
+              << pitch2 << ","
               << std::endl;
 
     geometry_msgs::Quaternion quat_swing_ref_msg;
@@ -207,8 +226,8 @@ int main(int argc, char **argv)
     ros::Publisher  p_angle_pub = nh.advertise<std_msgs::Float64> ("g_angle", 10);
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref2", 10);
     
-    // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
-    std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, bucket_ang" << std::endl; 
+    ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
+    // std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, bucket_ang" << std::endl; 
 
     ros::Rate loop(50);
 
