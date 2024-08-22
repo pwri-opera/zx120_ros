@@ -83,7 +83,8 @@ void Get_bucket_angle ()
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
 
-    // --------
+    // -------- Normal Ones
+
     // tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
     // quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
 
@@ -92,19 +93,29 @@ void Get_bucket_angle ()
     // quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
 
     // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
-    // // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
     // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
     
-    // --------
+    // roll 軸反転に関する対処
+    // if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
+    // {
+    //     pitch = M_PI - pitch; 
+    // }
+    // pitch = normalize_PI(pitch);
+
+    // angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+
+    // ------------------------------- //
+
+
+
+
+    // -------- Separate Ones -------- //
 
     tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
     quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
 
     quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
-
-    // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
-    // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
 
     tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
 
@@ -121,8 +132,12 @@ void Get_bucket_angle ()
     double dummy_value, pitch2; // 以下計算用，それ以降値は使用しない
     tf2::Matrix3x3(quat_bucket_base_swing).getRPY(dummy_value, pitch2, dummy_value);
 
-
     angle = pitch2 - fix_js_.position[BOOM] - fix_js_.position[ARM];
+
+    // ------------------------------- //
+
+
+
     angle = normalize_PI(angle);
 
     double th_a = angle - th_os_imu_buck;
