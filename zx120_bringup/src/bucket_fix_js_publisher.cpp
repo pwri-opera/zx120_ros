@@ -7,11 +7,6 @@
 // #include <tf/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-
-#include <Eigen/Dense>
-
-
-
 const int SWING=0;
 const int BOOM=1;
 const int ARM=2;
@@ -84,10 +79,35 @@ void Get_bucket_angle ()
         return;
     }
 
+    // -------- Separate Ones -------- //
+
+    bucket_imu_.orientation.x = 0.0; // 回転軸は y軸 なので それ以外の軸はすべて 0 
+    bucket_imu_.orientation.z = 0.0;
+    
+    swing_imu_.orientation.y = 0.0; // y軸成分のみの回転を除外する	
+
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
 
-    // -------- Normal Ones
+    quat_bucket = quat_bucket.normalized();
+    quat_swing  = quat_swing.normalized();
+
+    quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);   // siwng 軸について，エンコーダの値を信用
+    quat_swing = quat_swing * quat_swing_yaw;                   // swing -> baseの角度分のオフセットを取り込む
+
+    // --
+    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+
+    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
+
+    // roll 軸反転に関する対処
+    // if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
+    // {
+    //     pitch = M_PI - pitch; 
+    // }
+    pitch = normalize_PI(pitch);
+    angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+
 
     // tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
     // quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
@@ -95,47 +115,22 @@ void Get_bucket_angle ()
     // quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     // quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
 
-    // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
-    // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
-    
-    // roll 軸反転に関する対処
+    // tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
+
+    // // roll 軸反転に関する対処
     // if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
     // {
     //     pitch = M_PI - pitch; 
     // }
     // pitch = normalize_PI(pitch);
 
-    // angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+    // quat_bucket.setRPY(0, pitch, 0); // body の傾きを反映するため，いったん bucket pitch 角を quaternion にしてから計算
+    // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
 
-    // ------------------------------- //
+    // double dummy_value, pitch2; // 以下計算用，それ以降値は使用しない
+    // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(dummy_value, pitch2, dummy_value);
 
-
-
-
-    // -------- Separate Ones -------- //
-
-    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
-    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
-
-    quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
-    quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
-
-    tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
-
-    // roll 軸反転に関する対処
-    if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
-    {
-        pitch = M_PI - pitch; 
-    }
-    pitch = normalize_PI(pitch);
-
-    quat_bucket.setRPY(0, pitch, 0); // body の傾きを反映するため，いったん bucket pitch 角を quaternion にしてから計算
-    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
-
-    double dummy_value, pitch2; // 以下計算用，それ以降値は使用しない
-    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(dummy_value, pitch2, dummy_value);
-
-    angle = pitch2 - fix_js_.position[BOOM] - fix_js_.position[ARM];
+    // angle = pitch2 - fix_js_.position[BOOM] - fix_js_.position[ARM];
 
     // ------------------------------- //
 
@@ -169,10 +164,21 @@ void Get_bucket_angle ()
     // th_buck
     // );
 
+    // std::cout << bucket_imu_.header.stamp.toSec() << ","
+    //           << s_roll  << ","
+    //           << s_pitch << ","
+    //           << s_yaw   << ","
+    //           << fix_js_.position[SWING] << ","
+    //           << boom_angle_ << ","
+    //           << arm_angle_ << ","
+    //           << roll << ","
+    //           << pitch << ","
+    //           << yaw << ","
+    //           << th_buck << ","
+    //           << pitch2 << ","
+    //           << std::endl;
+
     std::cout << bucket_imu_.header.stamp.toSec() << ","
-              << s_roll  << ","
-              << s_pitch << ","
-              << s_yaw   << ","
               << fix_js_.position[SWING] << ","
               << boom_angle_ << ","
               << arm_angle_ << ","
@@ -180,7 +186,6 @@ void Get_bucket_angle ()
               << pitch << ","
               << yaw << ","
               << th_buck << ","
-              << pitch2 << ","
               << std::endl;
 
     geometry_msgs::Quaternion quat_swing_ref_msg;
@@ -235,7 +240,7 @@ int main(int argc, char **argv)
     is_ac58_js_     = false;
 
     ros::Publisher  fix_js_pub = nh.advertise<sensor_msgs::JointState> ("ac58_fix_bucket_joint_publisher/joint_states", 10);
-    ros::Subscriber swing_imu_sub = nh.subscribe ("swing/g2_imu_localframe", 5, &swing_g2_callback);
+    ros::Subscriber swing_imu_sub = nh.subscribe ("swing/g2_imu", 5, &swing_g2_callback);
     ros::Subscriber bucket_imu_sub = nh.subscribe ("bucket/g2_imu", 5, &bucket_g2_callback);
 
     ros::Subscriber ac58_js_sub = nh.subscribe ("ac58_joint_publisher/joint_states", 5, &AC58_js_callback);
@@ -245,7 +250,7 @@ int main(int argc, char **argv)
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref", 10);
     
     // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
-    std::cout << "swing_roll, swing_pitch, swing_yaw, boom_ang, arm_ang" << std::endl; 
+    std::cout << "swing_ang, boom_ang, arm_ang, roll, pitch, yaw, th_buck," << std::endl; 
 
     ros::Rate loop(50);
 
