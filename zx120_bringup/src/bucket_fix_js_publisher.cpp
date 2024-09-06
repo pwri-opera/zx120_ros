@@ -88,7 +88,6 @@ void Get_bucket_angle ()
     // tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
     // quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
 
-
     // quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     // quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
 
