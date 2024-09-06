@@ -69,37 +69,36 @@ void Get_bucket_angle ()
     double angle = 0.0;
     double roll, pitch, yaw;
     double s_roll, s_pitch, s_yaw;
-    tf2::Quaternion quat_swing, quat_swing_yaw, quat_bucket, quat_bucket_base_swing;
+    tf2::Quaternion quat_swing, quat_swing_yaw, quat_bucket, quat_bucket_base_swing, quat_swing_base;
     const double l1(505), l2(460), l3(325), l4(362);
     // const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
-    const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
+    // const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
     
+
+    //reconsidering params
+    const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.100369904);
+
     if (is_bucket_imu_ != true || is_swing_imu_ != true || is_ac58_js_ != true) 
     {
         return;
     }
 
-
-
-
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
 
+    // -------- Normal Ones
 
+    // tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+    // quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
 
+    // quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
+    // quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
 
-
-    tf2::Quaternion quat_yaw180;
-
-    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
-    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
-    quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
-    quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
-    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
-    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
-
-    // // roll 軸反転に関する対処
+    // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+    // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
+    
+    // roll 軸反転に関する対処
     // if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
     // {
     //     pitch = M_PI - pitch; 
@@ -107,21 +106,56 @@ void Get_bucket_angle ()
     // pitch = normalize_PI(pitch);
 
     // angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
-    // angle = normalize_PI(angle);
 
-    // double th_a = angle - th_os_imu_buck - th_os_arm;
-    // double lx = sqrt(l3*l3 + l1*l1 - 2*l1*l3*cos(th_a));
-    // double alpha = acos((l3-l1*cos(th_a))/lx);
-    // double beta = acos((l3*l3 + l1*l1 - l2*l2 + l4*l4 - 2*l1*l3*cos(th_a))/(2*l4*lx));
-    // double th_buck =  - M_PI + alpha + beta + th_os_buck;
+    // ------------------------------- //
 
-    // th_buck = normalize_PI(th_buck);
 
-    // fix_js_.position[BUCKET] = th_buck;
-    // fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
+
+
+    // -------- Separate Ones -------- //
+
+    tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
+    quat_swing.setRPY(-s_roll, s_pitch, 0.0);       // imu の yaw の値は信用しない
+
+    quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
+    quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
+
+    tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
+
+    // roll 軸反転に関する対処
+    if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
+    {
+        pitch = M_PI - pitch; 
+    }
+    pitch = normalize_PI(pitch);
+
+    quat_bucket.setRPY(0, pitch, 0); // body の傾きを反映するため，いったん bucket pitch 角を quaternion にしてから計算
+    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+
+    double dummy_value, pitch2; // 以下計算用，それ以降値は使用しない
+    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(dummy_value, pitch2, dummy_value);
+
+    angle = pitch2 - fix_js_.position[BOOM] - fix_js_.position[ARM];
+
+    // ------------------------------- //
+
+
+
+    angle = normalize_PI(angle);
+
+    double th_a = angle - th_os_imu_buck;
+    double lx = sqrt(l3*l3 + l1*l1 - 2*l1*l3*cos(th_a));
+    double alpha = acos((l3-l1*cos(th_a))/lx);
+    double beta = acos((l3*l3 + l1*l1 - l2*l2 + l4*l4 - 2*l1*l3*cos(th_a))/(2*l4*lx));
+    double th_buck =  - M_PI + alpha + beta + th_os_buck + th_os_arm;
+
+    th_buck = normalize_PI(th_buck);
+
+    fix_js_.position[BUCKET] = th_buck;
+    fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // Debug
-    // angle_msg_.data = pitch;
+    angle_msg_.data = pitch;
     // ROS_INFO ("%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf",
     // bucket_imu_.header.stamp.toSec(),
     // roll,
@@ -135,17 +169,24 @@ void Get_bucket_angle ()
     // th_buck
     // );
 
-    // std::cout << s_roll  << ","
-    //           << s_pitch << ","
-    //           << s_yaw   << ","
-    //           << boom_angle_ << ","
-    //           << arm_angle_ << ","
-    //           << std::endl;
+    std::cout << bucket_imu_.header.stamp.toSec() << ","
+              << s_roll  << ","
+              << s_pitch << ","
+              << s_yaw   << ","
+              << fix_js_.position[SWING] << ","
+              << boom_angle_ << ","
+              << arm_angle_ << ","
+              << roll << ","
+              << pitch << ","
+              << yaw << ","
+              << th_buck << ","
+              << pitch2 << ","
+              << std::endl;
 
-    // geometry_msgs::Quaternion quat_swing_ref_msg;
-    // quat_swing_ref_msg = tf2::toMsg (quat_swing);
-    // quat_swing_ref_ = swing_imu_;
-    // quat_swing_ref_.orientation = quat_swing_ref_msg;
+    geometry_msgs::Quaternion quat_swing_ref_msg;
+    quat_swing_ref_msg = tf2::toMsg (quat_swing);
+    quat_swing_ref_.header = swing_imu_.header;
+    quat_swing_ref_.orientation = quat_swing_ref_msg;
 }
 
 
