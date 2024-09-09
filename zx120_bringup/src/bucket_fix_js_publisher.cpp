@@ -7,6 +7,8 @@
 // #include <tf/transform_broadcaster.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <iomanip>
+
 const int SWING=0;
 const int BOOM=1;
 const int ARM=2;
@@ -101,12 +103,37 @@ void Get_bucket_angle ()
     tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
 
     // roll 軸反転に関する対処
+    if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
+    {
+        pitch = M_PI - pitch; 
+    }
+    pitch = normalize_PI(pitch);
+    angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+
+
+    // --
+    // tf2::Matrix3x3(quat_bucket).getRPY(roll, pitch, yaw);
+
+    // // roll 軸反転に関する対処
     // if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
     // {
     //     pitch = M_PI - pitch; 
     // }
-    pitch = normalize_PI(pitch);
-    angle = pitch - fix_js_.position[BOOM] - fix_js_.position[ARM];
+    // pitch = normalize_PI(pitch);
+
+    // quat_bucket.setRPY(0, pitch, 0); // body の傾きを反映するため，いったん bucket pitch 角を quaternion にしてから計算
+    // quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+    // quat_bucket_base_swing = quat_bucket;
+
+    // double dummy_value, pitch2; // 以下計算用，それ以降値は使用しない
+    // tf2::Matrix3x3(quat_bucket_base_swing).getRPY(dummy_value, pitch2, dummy_value);
+
+    // angle = pitch2 - fix_js_.position[BOOM] - fix_js_.position[ARM];
+
+
+
+
+
 
 
     // tf2::Matrix3x3(quat_swing).getRPY(s_roll, s_pitch, s_yaw);
@@ -178,7 +205,8 @@ void Get_bucket_angle ()
     //           << pitch2 << ","
     //           << std::endl;
 
-    std::cout << bucket_imu_.header.stamp.toSec() << ","
+    std::cout << std::fixed << std::setprecision(15) // 桁数を15桁表示にする
+              << bucket_imu_.header.stamp.toSec() << ","
               << fix_js_.position[SWING] << ","
               << boom_angle_ << ","
               << arm_angle_ << ","
@@ -186,6 +214,14 @@ void Get_bucket_angle ()
               << pitch << ","
               << yaw << ","
               << th_buck << ","
+              << quat_swing.getX() << ","
+              << quat_swing.getY() << ","
+              << quat_swing.getZ() << ","
+              << quat_swing.getW() << ","
+              << quat_bucket.getX() << ","
+              << quat_bucket.getY() << ","
+              << quat_bucket.getZ() << ","
+              << quat_bucket.getW() << ","
               << std::endl;
 
     geometry_msgs::Quaternion quat_swing_ref_msg;
@@ -250,7 +286,7 @@ int main(int argc, char **argv)
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref", 10);
     
     // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
-    std::cout << "swing_ang, boom_ang, arm_ang, roll, pitch, yaw, th_buck," << std::endl; 
+    std::cout << " ,swing_ang, boom_ang, arm_ang, roll, pitch, yaw, th_buck, swing_qx, swing_qy, swing_qz, swing_qw, bucket_qx, bucket_qy, bucket_qz, bucket_qw" << std::endl; 
 
     ros::Rate loop(50);
 
