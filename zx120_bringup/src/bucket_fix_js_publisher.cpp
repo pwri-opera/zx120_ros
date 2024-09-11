@@ -165,7 +165,8 @@ void Get_bucket_angle ()
     // th_buck
     // );
 
-    std::cout << bucket_imu_.header.stamp.toSec() << ","
+    std::cout << std::fixed << std::setprecision(15) // 桁数を15桁表示にする
+              << bucket_imu_.header.stamp.toSec() << ","
               << s_roll  << ","
               << s_pitch << ","
               << s_yaw   << ","
@@ -175,8 +176,8 @@ void Get_bucket_angle ()
               << roll << ","
               << pitch << ","
               << yaw << ","
+              << angle << ","
               << th_buck << ","
-              << pitch2 << ","
               << std::endl;
 
     geometry_msgs::Quaternion quat_swing_ref_msg;
@@ -240,7 +241,8 @@ int main(int argc, char **argv)
     ros::Publisher  p_angle_pub = nh.advertise<std_msgs::Float64> ("g_angle", 10);
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref2", 10);
     
-    ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
+    // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
+    std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, angle, bucket_ang" << std::endl; 
     // std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, bucket_ang" << std::endl; 
 
     ros::Rate loop(50);
