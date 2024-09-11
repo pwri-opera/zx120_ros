@@ -116,31 +116,27 @@ void Get_bucket_angle ()
     // bucket_imu_.orientation.x = 0.0; // 回転軸は y軸 なので それ以外の軸はすべて 0 
     // bucket_imu_.orientation.z = 0.0;
     
-    swing_imu_.orientation.y = 0.0; // y軸成分のみの回転を除外する	
+    // swing_imu_.orientation.y = 0.0; // y軸成分のみの回転を除外する	
 
     tf2::convert (bucket_imu_.orientation, quat_bucket);
     tf2::convert (swing_imu_.orientation, quat_swing);
 
-    tf2::Vector3 vec_quat_bucket (quat_bucket.getX(), quat_bucket.getY(), quat_bucket.getZ());
-    vec_quat_bucket.normalize ();
-    tf2::Vector3 vec_basis_x (1.0, 0.0, 0.0);
-    tf2::Vector3 vec_basis_y (0.0, 1.0, 0.0);
-
-    tf2::Quaternion compensate_quat_bucket ( tf2::tf2Cross (vec_basis_y, vec_quat_bucket).normalize () , tf2::tf2Angle (vec_basis_y, vec_quat_bucket));
-    quat_bucket = compensate_quat_bucket.inverse() * quat_bucket;
-
-
-
-
-
     quat_bucket = quat_bucket.normalized();
     quat_swing  = quat_swing.normalized();
+
+    // tf2::Vector3 vec_quat_bucket = quat_bucket.getAxis().normalize();
+    // tf2::Vector3 vec_basis_y (0.0, 1.0, 0.0);
+
+    // tf2::Quaternion compensate_quat_bucket ( tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize () , tf2::tf2Angle (vec_basis_y, vec_quat_bucket));
+    // // tf2::Quaternion quat_bucket_fixed = compensate_quat_bucket * quat_bucket * compensate_quat_bucket.inverse();   
+    // quat_bucket = compensate_quat_bucket * quat_bucket * compensate_quat_bucket.inverse();   
+
 
     quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);   // siwng 軸について，エンコーダの値を信用
     quat_swing = quat_swing * quat_swing_yaw;                   // swing -> baseの角度分のオフセットを取り込む
 
     // --
-    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
+    quat_bucket_base_swing = quat_swing.inverse() * quat_bucket * quat_swing;
 
     tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
 
@@ -256,6 +252,7 @@ void Get_bucket_angle ()
               << roll << ","
               << pitch << ","
               << yaw << ","
+              << angle << ","
               << th_buck << ","
               << quat_swing.getX() << ","
               << quat_swing.getY() << ","
@@ -265,16 +262,16 @@ void Get_bucket_angle ()
               << quat_bucket.getY() << ","
               << quat_bucket.getZ() << ","
               << quat_bucket.getW() << ","
-              << compensate_quat_bucket.getX() << ","
-              << compensate_quat_bucket.getY() << ","
-              << compensate_quat_bucket.getZ() << ","
-              << compensate_quat_bucket.getW() << ","
-              << tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize ().getX() << ","
-              << tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize ().getY() << ","
-              << tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize ().getZ() << ",,"
-              << vec_quat_bucket.getX() << ","
-              << vec_quat_bucket.getY() << ","
-              << vec_quat_bucket.getZ() << ","
+            //   << compensate_quat_bucket.getX() << ","
+            //   << compensate_quat_bucket.getY() << ","
+            //   << compensate_quat_bucket.getZ() << ","
+            //   << compensate_quat_bucket.getW() << ",,"
+            //   << tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize ().getX() << ","
+            //   << tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize ().getY() << ","
+            //   << tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize ().getZ() << ",,"
+            //   << vec_quat_bucket.getX() << ","
+            //   << vec_quat_bucket.getY() << ","
+            //   << vec_quat_bucket.getZ() << ","
               << std::endl;
 
     geometry_msgs::Quaternion quat_swing_ref_msg;
@@ -339,7 +336,7 @@ int main(int argc, char **argv)
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref", 10);
     
     // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
-    std::cout << " ,swing_ang, boom_ang, arm_ang, roll, pitch, yaw, th_buck, swing_qx, swing_qy, swing_qz, swing_qw, bucket_qx, bucket_qy, bucket_qz, bucket_qw" << std::endl; 
+    std::cout << " ,swing_ang, boom_ang, arm_ang, roll, pitch, yaw, angle, th_buck, swing_qx, swing_qy, swing_qz, swing_qw, bucket_qx, bucket_qy, bucket_qz, bucket_qw" << std::endl; 
 
     ros::Rate loop(50);
 
