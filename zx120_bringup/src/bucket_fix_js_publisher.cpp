@@ -124,12 +124,11 @@ void Get_bucket_angle ()
     quat_bucket = quat_bucket.normalized();
     quat_swing  = quat_swing.normalized();
 
-    // tf2::Vector3 vec_quat_bucket = quat_bucket.getAxis().normalize();
-    // tf2::Vector3 vec_basis_y (0.0, 1.0, 0.0);
+    tf2::Vector3 vec_quat_bucket = quat_bucket.getAxis().normalize();
+    tf2::Vector3 vec_basis_y (0.0, 1.0, 0.0);
 
-    // tf2::Quaternion compensate_quat_bucket ( tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize () , tf2::tf2Angle (vec_basis_y, vec_quat_bucket));
-    // // tf2::Quaternion quat_bucket_fixed = compensate_quat_bucket * quat_bucket * compensate_quat_bucket.inverse();   
-    // quat_bucket = compensate_quat_bucket * quat_bucket * compensate_quat_bucket.inverse();   
+    tf2::Quaternion compensate_quat_bucket ( tf2::tf2Cross (vec_quat_bucket, vec_basis_y).normalize () , tf2::tf2Angle (vec_basis_y, vec_quat_bucket));
+    quat_bucket = compensate_quat_bucket * quat_bucket * compensate_quat_bucket.inverse();   
 
 
     quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);   // siwng 軸について，エンコーダの値を信用
