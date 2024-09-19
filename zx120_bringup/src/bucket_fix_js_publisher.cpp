@@ -128,8 +128,15 @@ void Get_bucket_angle ()
     quat_bucket.setRPY(0, pitch, 0); // body の傾きを反映するため，いったん bucket pitch 角を quaternion にしてから計算
     quat_bucket_base_swing = quat_swing.inverse() * quat_bucket;
 
-    double dummy_value, pitch2; // 以下計算用，それ以降値は使用しない
-    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(dummy_value, pitch2, dummy_value);
+    double roll2, pitch2, yaw2; // 以下計算用，それ以降値は使用しない
+    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll2, pitch2, yaw2);
+
+        // roll 軸反転に関する対処
+    if ( roll2 < -M_PI/2.0 ||  roll2 >  M_PI/2.0 )
+    {
+        pitch2 = M_PI - pitch2; 
+    }
+    pitch2 = normalize_PI(pitch2);
 
     angle = pitch2 - fix_js_.position[BOOM] - fix_js_.position[ARM];
 
@@ -167,15 +174,13 @@ void Get_bucket_angle ()
 
     std::cout << std::fixed << std::setprecision(15) // 桁数を15桁表示にする
               << bucket_imu_.header.stamp.toSec() << ","
-              << s_roll  << ","
-              << s_pitch << ","
-              << s_yaw   << ","
               << fix_js_.position[SWING] << ","
               << boom_angle_ << ","
               << arm_angle_ << ","
               << roll << ","
-              << pitch << ","
+              << pitch2 << ","
               << yaw << ","
+              << pitch << ","
               << angle << ","
               << th_buck << ","
               << std::endl;
@@ -242,7 +247,7 @@ int main(int argc, char **argv)
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref2", 10);
     
     // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
-    std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, angle, bucket_ang" << std::endl; 
+    std::cout << "time[bucket], swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, pitch2, angle, bucket_ang" << std::endl; 
     // std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, bucket_ang" << std::endl; 
 
     ros::Rate loop(50);
