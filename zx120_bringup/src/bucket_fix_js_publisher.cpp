@@ -173,23 +173,23 @@ void Get_bucket_angle ()
     // th_buck
     // );
 
-    std::cout << std::fixed << std::setprecision(15) // 桁数を15桁表示にする
-              << bucket_imu_.header.stamp.toSec() << ","
-              << fix_js_.position[SWING] << ","
-              << boom_angle_ << ","
-              << arm_angle_ << ","
-              << roll << ","
-              << pitch2 << ","
-              << yaw << ","
-              << pitch << ","
-              << angle << ","
-              << th_buck << ","
-              << std::endl;
+    // std::cout << std::fixed << std::setprecision(15) // 桁数を15桁表示にする
+    //           << bucket_imu_.header.stamp.toSec() << ","
+    //           << fix_js_.position[SWING] << ","
+    //           << boom_angle_ << ","
+    //           << arm_angle_ << ","
+    //           << roll << ","
+    //           << pitch2 << ","
+    //           << yaw << ","
+    //           << pitch << ","
+    //           << angle << ","
+    //           << th_buck << ","
+    //           << std::endl;
 
-    geometry_msgs::Quaternion quat_swing_ref_msg;
-    quat_swing_ref_msg = tf2::toMsg (quat_swing);
-    quat_swing_ref_.header = swing_imu_.header;
-    quat_swing_ref_.orientation = quat_swing_ref_msg;
+    // geometry_msgs::Quaternion quat_swing_ref_msg;
+    // quat_swing_ref_msg = tf2::toMsg (quat_swing);
+    // quat_swing_ref_.header = swing_imu_.header;
+    // quat_swing_ref_.orientation = quat_swing_ref_msg;
 }
 
 
@@ -248,7 +248,7 @@ int main(int argc, char **argv)
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref2", 10);
     
     // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
-    std::cout << "time[bucket], swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, pitch2, angle, bucket_ang" << std::endl; 
+    // std::cout << "time[bucket], swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, pitch2, angle, bucket_ang" << std::endl; 
     // std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, bucket_ang" << std::endl; 
 
     ros::Rate loop(50);
