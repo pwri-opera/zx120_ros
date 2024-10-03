@@ -72,7 +72,7 @@ void Get_bucket_angle ()
     // const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
     
     //reconsidering params
-    const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.100369904);
+    const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(-0.100369904);
 
     if (is_bucket_imu_ != true || is_swing_imu_ != true || is_ac58_js_ != true) 
     {
@@ -107,7 +107,8 @@ void Get_bucket_angle ()
     double beta = acos((l3*l3 + l1*l1 - l2*l2 + l4*l4 - 2*l1*l3*cos(th_a))/(2*l4*lx));
     double th_buck =  - M_PI + alpha + beta + th_os_buck + th_os_arm;
 
-    th_buck = normalize_PI(th_buck);
+    th_buck = normalize_PI(th_buck) ;
+    //th_buck = 0.0;
 
     fix_js_.position[BUCKET] = th_buck;
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
