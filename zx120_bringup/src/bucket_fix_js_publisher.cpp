@@ -70,7 +70,6 @@ void Get_bucket_angle ()
     // const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
     // const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
-    
     //reconsidering params
     const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(-0.100369904);
 
@@ -87,9 +86,6 @@ void Get_bucket_angle ()
 
     quat_swing_yaw.setRPY(0.0, 0.0, fix_js_.position[SWING]);
     quat_swing = quat_swing * quat_swing_yaw.inverse();     /* swing -> baseの角度分のオフセットを取り込む */
-
-    quat_bucket_base_swing = quat_swing_yaw.inverse() * quat_bucket;
-    tf2::Matrix3x3(quat_bucket_base_swing).getRPY(roll, pitch, yaw);
 
     // roll 軸反転に関する対処
     if ( roll < -M_PI/2.0 ||  roll >  M_PI/2.0 )
@@ -110,7 +106,9 @@ void Get_bucket_angle ()
     th_buck = normalize_PI(th_buck) ;
     //th_buck = 0.0;
 
-    fix_js_.position[BUCKET] = th_buck;
+    // fix_js_.position[BUCKET] = th_buck;
+    // fix_js_.position[BUCKET] = - pitch - fix_js_.position[BOOM];
+    fix_js_.position[BUCKET] = -pitch;
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // Debug
