@@ -70,8 +70,10 @@ void Get_bucket_angle ()
     // const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.25);
     // const double th_os_arm(0.0), th_os_buck(1.865827), th_os_imu_buck(0.00);
     // const double th_os_arm(0.00), th_os_buck(1.865827), th_os_imu_buck(0.0);
+    
+
     //reconsidering params
-    const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(-0.100369904);
+    const double th_os_arm(0.070058), th_os_buck(1.865827), th_os_imu_buck(0.100369904);
 
     if (is_bucket_imu_ != true || is_swing_imu_ != true || is_ac58_js_ != true) 
     {
@@ -150,12 +152,9 @@ void Get_bucket_angle ()
     double beta = acos((l3*l3 + l1*l1 - l2*l2 + l4*l4 - 2*l1*l3*cos(th_a))/(2*l4*lx));
     double th_buck =  - M_PI + alpha + beta + th_os_buck + th_os_arm;
 
-    th_buck = normalize_PI(th_buck) ;
-    //th_buck = 0.0;
+    th_buck = normalize_PI(th_buck);
 
-    // fix_js_.position[BUCKET] = th_buck;
-    // fix_js_.position[BUCKET] = - pitch - fix_js_.position[BOOM];
-    fix_js_.position[BUCKET] = -pitch;
+    fix_js_.position[BUCKET] = th_buck;
     fix_js_.velocity[BUCKET] = bucket_imu_.angular_velocity.y;
 
     // Debug
@@ -248,7 +247,7 @@ int main(int argc, char **argv)
     ros::Publisher  swing_ref_pub = nh.advertise<sensor_msgs::Imu> ("swing/g2_imu/ref2", 10);
     
     // ROS_INFO(" 0, 0, 0, 0, time, roll, pitch, yaw, quat.x, quat.y, quat.z, quat.w, angle, th_buck");
-    // std::cout << "time[bucket], swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, pitch2, angle, bucket_ang" << std::endl; 
+    std::cout << "time[bucket], swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, pitch2, angle, bucket_ang" << std::endl; 
     // std::cout << "time[bucket], swing_roll, swing_pitch, swing_yaw, swing_ang, boom_ang, arm_ang, bucket_roll, bucket_pitch, bucket_yaw, bucket_ang" << std::endl; 
 
     ros::Rate loop(50);
@@ -260,11 +259,12 @@ int main(int argc, char **argv)
         fix_js_.name = {"swing_joint", "boom_joint", "arm_joint", "bucket_joint"};
         fix_js_pub.publish (fix_js_);
 
-        p_angle_pub.publish (angle_msg_);
-        swing_ref_pub.publish (quat_swing_ref_); 
+        // p_angle_pub.publish (angle_msg_);
+        // swing_ref_pub.publish (quat_swing_ref_); 
         loop.sleep();
         ros::spinOnce();
     }
     return 0;
 }
+
 
