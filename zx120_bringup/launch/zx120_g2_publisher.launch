@@ -1,0 +1,23 @@
+  <launch>
+    <arg name="robot_name" default="zx120"/>
+    <group ns="$(arg robot_name)">
+        <!-- <node name="imubased_js_publisehr" pkg="zx120_bringup" type="imubased_js_publisher" output="screen"> -->
+            <!-- <remap from="imubased/joint_states" to="dummy/imubased/joint_states"/> -->
+            <!-- <rosparam command="load" file="$(find g2_ros)/config/g2_sensors.yaml"/>
+            <param name="g2_can_id" value="101"/>
+            <param name="frame_id" value="bucket_link"/>
+            <param name="offset_pitch_angle" value="0.015"/>
+            <remap from="/received_messages" to="/$(arg robot_name)/received_messages"/> -->
+        <!-- </node> -->
+        <node name="bucket_fix_js_publisher" pkg="zx120_bringup" type="bucket_fix_js_publisher" output="screen"/>
+        <!--remap from="$(arg robot_name)/swing/received_messages" to="$(arg robot_name)/received_messages"/-->
+
+        <!-- <node name="imu_filter_madgwick" pkg="imu_filter_madgwick" type="imu_filter_node" output="screen">
+            <remap from="imu/data_raw"   to="arm/g2_imu"/>
+            <remap from="imu/data"       to="arm/g2_imu/filtered"/>
+            <param name="gain"          value="0.01"/>
+            <param name="publish_t"     value="false"/>
+            <param name="use_mag"       value="false"/>
+        </node> -->
+    </group>
+</launch>

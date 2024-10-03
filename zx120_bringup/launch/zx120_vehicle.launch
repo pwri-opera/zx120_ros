@@ -41,7 +41,7 @@
 			args="upper_arm_controller"/>
 
 		<node name="upper_arm_control" pkg="zx120_control" type="upper_arm_control" output="screen" respawn="false">
-			<remap from="joint_states" to="ac58_joint_publisher/joint_states"/>
+			<remap from="joint_states" to="ac58_fix_bucket_joint_publisher/joint_states"/>
 			<remap from="swing/setpoint" to="swing/cmd"/>
 			<remap from="boom/setpoint" to="boom/cmd"/>
 			<remap from="arm/setpoint" to="arm/cmd"/>
@@ -50,7 +50,7 @@
 
 		<!-- We do not have a robot connected, so publish fake joint states -->
 		<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-			<rosparam param="source_list">[ac58_joint_publisher/joint_states]</rosparam>
+			<rosparam param="source_list">[ac58_fix_bucket_joint_publisher/joint_states]</rosparam>
 		</node>
 
 		<!-- Given the published joint states, publish tf for the robot links -->

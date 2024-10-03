@@ -134,6 +134,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(imubased_js_publisher src/imubased_js_publisher.cpp)
+add_executable(bucket_fix_js_publisher src/bucket_fix_js_publisher.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,6 +150,11 @@ add_executable(imubased_js_publisher src/imubased_js_publisher.cpp)
 target_link_libraries(imubased_js_publisher
   ${catkin_LIBRARIES}
 )
+
+target_link_libraries(bucket_fix_js_publisher
+  ${catkin_LIBRARIES}
+)
+
 
 #############
 ## Install ##

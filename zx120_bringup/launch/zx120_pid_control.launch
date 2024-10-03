@@ -16,6 +16,7 @@
             <param name="setpoint_timeout" value="1.0" />
             <remap from="state" to="predicted_state"/>
             <remap from="setpoint" to="setpoint_common" />
+	        <!-- <remap from="setpoint" to="naist_setpoint" /> -->
             <param name="angle_error" value="true"/>
             <param name="cutoff_frequency" value="3" />
             <param name="ff_enable" value="$(arg ff_enable)"/>
@@ -33,7 +34,8 @@
             <param name="min_loop_frequency" value="100.0" />
             <param name="setpoint_timeout" value="1.0" />
             <param name="cutoff_frequency" value="5" />
-            <remap from="setpoint" to="setpoint_common" />
+	        <remap from="setpoint" to="setpoint_common" />
+	        <!-- <remap from="setpoint" to="naist_setpoint" /> -->
             <!--remap from="setpoint" to="setpoint_tmp" /-->
             <!--param name="topic_from_controller" value="/"-->
             <!--param name="topic_from_plant" value=""-->
@@ -53,7 +55,8 @@
             <param name="max_loop_frequency" value="100.0" />
             <param name="min_loop_frequency" value="100.0" />
             <param name="setpoint_timeout" value="1.0" />
-            <remap from="setpoint" to="setpoint_common" />
+	        <remap from="setpoint" to="setpoint_common" />
+	        <!-- <remap from="setpoint" to="naist_setpoint" /> -->
             <!--param name="topic_from_controller" value="/"-->
             <!--param name="topic_from_plant" value=""-->
             <param name="cutoff_frequency" value="5" />
@@ -75,7 +78,8 @@
             <param name="setpoint_timeout" value="1.0" />
             <param name="cutoff_frequency" value="5" />
             <!-- param name="cutoff_frequency_" value="100" / -->
-            <remap from="setpoint" to="setpoint_common" />
+	        <remap from="setpoint" to="setpoint_common" />
+	        <!-- <remap from="setpoint" to="naist_setpoint" /> -->
             <!--param name="topic_from_controller" value="/"-->
             <!--param name="topic_from_plant" value=""-->
             <remap from="state" to="predicted_state"/>
